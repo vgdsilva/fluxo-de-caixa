@@ -1,6 +1,6 @@
 # 0008 Versões fixadas: Nest 11, TypeScript 5.9, PrimeVue 4.5
 
-**Status:** aceita (16/11/2026)
+**Status:** aceita (16/11/2026). A parte do PrimeVue foi substituída pelo ADR 0009 (shadcn-vue).
 
 **Contexto.** Na fatia 1, as versões mais novas de algumas dependências eram incompatíveis com o resto da stack ou mudaram de licença:
 

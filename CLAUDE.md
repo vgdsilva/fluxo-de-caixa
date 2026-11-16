@@ -1,6 +1,6 @@
 # Fluxo de Caixa
 
-App pessoal de fluxo de caixa e projeção financeira. Monorepo pnpm: `apps/web` (Vue 3 + Vite + Pinia + PrimeVue, PWA), `apps/api` (NestJS 11 + MikroORM + PostgreSQL), `packages/contracts` (schemas zod compartilhados). Plano: `docs/plano-base.md`. Fase atual: `docs/fase-0.md` (fatias 1 a 8). Decisões: `docs/adr/`.
+App pessoal de fluxo de caixa e projeção financeira. Monorepo pnpm: `apps/web` (Vue 3 + Vite + Pinia + Vue Router + Tailwind + shadcn-vue, PWA), `apps/api` (NestJS 11 + MikroORM + PostgreSQL), `packages/contracts` (schemas zod compartilhados). Plano: `docs/plano-base.md`. Fase atual: `docs/fase-0.md` (fatias 1 a 8). Decisões: `docs/adr/`.
 
 O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio do Nest ou do Vue, explique em uma frase (comentário ou PR) e, se for recorrente, acrescente em `docs/guia-nest-vue-para-dotnet.md`.
 
@@ -26,11 +26,11 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Nomes de código em inglês; textos da interface em português.
 - Toda fatia termina com um roteiro curto de verificação manual em `docs/verificacao/`.
 
-## Versões fixadas (ver ADR 0008)
+## Versões fixadas e UI (ver ADRs 0008 e 0009)
 
 - NestJS 11 (não 12): `nestjs-zod` e `@nestjs/config` 4 ainda exigem Nest 11.
 - TypeScript 5.9: `typescript-eslint` e `ts-jest` ainda não aceitam TS 6/7.
-- PrimeVue 4.5 + `@primeuix/themes` 2.0: a partir do 5.0 a licença deixou de ser MIT e exige chave.
+- Componentes: shadcn-vue + Tailwind 4 (ADR 0009), não PrimeVue. Componente novo: `pnpm dlx shadcn-vue@latest add <nome>` em `apps/web`; o código vai para `src/components/ui/`.
 - Node: CI usa a versão do `.nvmrc` (24); localmente funciona com Node >= 22.12.
 
 ## Glossário (código = interface)

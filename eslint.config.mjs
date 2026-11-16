@@ -51,6 +51,15 @@ export default tseslint.config(
     },
   },
 
+  // Componentes gerados pelo CLI do shadcn-vue (Button, Card...): mantidos como o CLI entrega.
+  {
+    files: ['apps/web/src/components/ui/**/*.vue'],
+    rules: {
+      'vue/multi-word-component-names': 'off',
+      'vue/require-default-prop': 'off',
+    },
+  },
+
   // Configs de ferramentas (Node)
   {
     files: ['**/*.config.{js,ts}', '**/tsup.config.ts'],

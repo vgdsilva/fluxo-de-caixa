@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { HealthResponse } from '@fluxo/contracts';
-import Button from 'primevue/button';
-import Message from 'primevue/message';
+import { CircleAlert, CircleCheck, RefreshCw } from '@lucide/vue';
 import { onMounted, ref } from 'vue';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { fetchHealth } from './health.api';
 
 const health = ref<HealthResponse | null>(null);
@@ -26,22 +27,22 @@ onMounted(load);
 </script>
 
 <template>
-  <section class="api-status">
-    <Message v-if="health" severity="success" data-testid="api-ok">
-      API no ar (versão {{ health.version }}, {{ new Date(health.time).toLocaleString('pt-BR') }})
-    </Message>
-    <Message v-else-if="error" severity="error" data-testid="api-error">
-      Não foi possível falar com a API: {{ error }}
-    </Message>
-    <Button label="Verificar de novo" :loading="loading" size="small" @click="load" />
+  <section class="flex flex-col items-start gap-3">
+    <Alert v-if="health" data-testid="api-ok">
+      <CircleCheck class="text-emerald-600" />
+      <AlertTitle>API no ar</AlertTitle>
+      <AlertDescription>
+        Versão {{ health.version }}, {{ new Date(health.time).toLocaleString('pt-BR') }}
+      </AlertDescription>
+    </Alert>
+    <Alert v-else-if="error" variant="destructive" data-testid="api-error">
+      <CircleAlert />
+      <AlertTitle>Não foi possível falar com a API</AlertTitle>
+      <AlertDescription>{{ error }}</AlertDescription>
+    </Alert>
+    <Button variant="outline" size="sm" :disabled="loading" @click="load">
+      <RefreshCw :class="{ 'animate-spin': loading }" />
+      Verificar de novo
+    </Button>
   </section>
 </template>
-
-<style scoped>
-.api-status {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-}
-</style>
