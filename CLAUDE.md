@@ -42,6 +42,7 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 
 ## Como trabalhar
 
+- Branches: `feature/<descricao-curta>` para funcionalidade nova (ex.: `feature/fatia-2-persistencia`) e `hotfix/<descricao-curta>` para correção. Nada de commit direto no `master`.
 - Uma fatia vertical por sessão (contrato + API + tela); PR pequeno, com o roteiro de verificação manual.
 - Decisão de arquitetura nova = ADR em `docs/adr` antes do código.
 - Ao fechar uma fatia, atualize este arquivo se surgiu convenção nova.
