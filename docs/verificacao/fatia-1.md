@@ -11,6 +11,6 @@ Pré-requisitos: Node >= 22.12 (a CI usa 24), pnpm 11, git. Postgres ainda não 
 7. **Erro visível.** Pare só a API (ou feche o terminal e rode `pnpm --filter @fluxo/web dev`). Clique em "Verificar de novo": aparece a mensagem vermelha "Não foi possível falar com a API" (o proxy do Vite responde 502).
 8. **Config validada.** Com `PORT=abc` no `apps/api/.env`, `pnpm --filter @fluxo/api dev` não sobe e mostra "Configuração inválida" apontando `PORT`. Volte para `3000`.
 9. **Fronteira web/api.** Em qualquer arquivo de `apps/web/src`, adicione `import '../../api/src/main';` e rode `pnpm lint`: falha com a regra `no-restricted-imports` ("O web só fala com a API por HTTP"). Desfaça.
-10. **CI.** No GitHub, o workflow CI fica verde no push do branch.
+10. **CI.** No GitHub, o workflow CI roda em todo push e PR e fica verde.
 
 Resultado em 16/11/2026 (Windows 11, Node 22.18, pnpm 11.28): passos 1 a 9 OK; passo 10 depende do push.

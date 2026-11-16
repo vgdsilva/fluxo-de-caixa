@@ -3,7 +3,6 @@ name: CI
 # Fase 0: só build, lint e typecheck (testes automatizados entram depois da fase 0).
 on:
   push:
-    branches: [master]
   pull_request:
 
 concurrency:
