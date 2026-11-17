@@ -13,9 +13,10 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Configuração da API: copie `apps/api/.env.example` para `apps/api/.env`
 - Banco de dev (uma vez): `pnpm --filter @fluxo/api db:setup` (pede a senha do `postgres`; cria `fluxo_app` e `fluxo_dev`)
 - Nova migration: `pnpm --filter @fluxo/api db:migration:create` (as migrations rodam sozinhas no start da API)
-- Dados de exemplo: `pnpm --filter @fluxo/api db:seed` (usuários `ana` e `bruno`)
-- Testar como um usuário (só em dev, até a fatia 4): cabeçalho `X-Dev-User: ana` (ana é admin)
-- Ver a auditoria: `GET /api/audit?limit=20` como admin
+- Dados de exemplo: `pnpm --filter @fluxo/api db:seed` (usuários `ana`, admin, e `bruno`; senha = `SEED_PASSWORD` do `apps/api/.env`)
+- Testar a API pelo terminal: `POST /api/auth/login` com `curl -c cookies.txt`, depois `-b cookies.txt` (cookie `fluxo_sid`)
+- Ver a auditoria: `GET /api/audit?limit=20` logado como admin
+- Primeiro admin: com o banco sem usuários, a API escreve no log o link `/setup?token=...`
 - Testes automatizados: ainda não existem (entram depois da fase 0). Os runners já estão configurados (Jest na api, Vitest no web).
 
 ## Regras que não se quebram
@@ -34,7 +35,7 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 
 - NestJS 11 (não 12): `nestjs-zod` e `@nestjs/config` 4 ainda exigem Nest 11.
 - TypeScript 5.9: `typescript-eslint` e `ts-jest` ainda não aceitam TS 6/7.
-- Componentes: shadcn-vue + Tailwind 4 (ADR 0009), não PrimeVue. Componente novo: `pnpm dlx shadcn-vue@latest add <nome>` em `apps/web`; o código vai para `src/components/ui/`.
+- Componentes: shadcn-vue + Tailwind 4 (ADR 0009), não PrimeVue. Componente novo: `pnpm dlx shadcn-vue@latest add <nome>` em `apps/web`; o código vai para `src/components/ui/`. Depois de rodar o CLI, confira o `src/assets/styles/main.css`: ele recoloca um `@import` do Google Fonts que deve ser removido (a fonte é local).
 - Node: CI usa a versão do `.nvmrc` (24); localmente funciona com Node >= 22.12.
 
 ## Onde fica cada coisa
@@ -43,6 +44,8 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Entidade nova: estende `OwnedEntity` (dado de usuário) ou `BaseEntity`, entra em `database/entities.ts`, gera migration. Tipo de coluna sempre explícito (`@Property({ type: ... })`); campos com default usam `Opt<T>`. Serviço nunca filtra por `ownerId`/`deletedAt` à mão nem grava auditoria de alteração à mão (o `AuditSubscriber` grava). Eventos sem entidade (login etc.) usam o `AuditWriter`. Campo sensível na entidade = `hidden: true` (sai mascarado na auditoria). Índice único em entidade com soft delete deve ser parcial (`where deleted_at is null`), senão um registro apagado bloqueia o valor. DTO = `createZodDto(schema de @fluxo/contracts)`. Molde completo de módulo com entidade dona + CRUD: commit `46664bf` (módulo notes, removido depois).
 - Web (nomes fixos, pedidos pelo dono): `public/{images,icons,favicon.ico}`; em `src/`: `assets/`, `components/{common,ui,layout}`, `pages/`, `hooks/` (composables do Vue, `useX.ts`), `context/` (provide/inject), `services/` (`api.ts` + `*.service.ts`), `utils/`, `routes/` (Vue Router), `store/` (Pinia). Não renomeie para `composables/`, `router/` ou `stores/`.
 - Componente não chama `fetch`: usa um hook, que usa `services/`.
+- Toda rota da API exige sessão (SessionGuard global); rota aberta usa `@Public()`, rota de admin usa `@Roles('admin')`. No front, rota aberta tem `meta.public` e telas de login usam `meta.layout: 'auth'` (AuthLayout, tela dividida).
+- Usuário da requisição: `AppContext.userId()` / `AppContext.role()`; nunca leia do body.
 
 ## Glossário (código = interface)
 

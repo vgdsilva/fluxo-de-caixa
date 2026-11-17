@@ -1,18 +1,26 @@
+import { hash } from '@node-rs/argon2';
 import type { EntityManager } from '@mikro-orm/postgresql';
 import { Seeder } from '@mikro-orm/seeder';
 import { User } from '../../modules/users/user.entity';
 import { runAsSystem } from '../system-context';
 
 /**
- * Dados de desenvolvimento: dois usuários para testar o isolamento (X-Dev-User: ana / bruno).
- * Idempotente: rodar de novo não duplica nada. Na fase 1 ganha contas e lançamentos de exemplo.
+ * Dados de desenvolvimento: dois usuários (ana = admin, bruno = user) para testar login,
+ * isolamento e auditoria. A senha dos dois vem de SEED_PASSWORD em apps/api/.env.
+ * Idempotente: rodar de novo não duplica; só define a senha de quem ainda não tem.
  * Rodar: `pnpm --filter @fluxo/api db:seed`
  */
 export class DatabaseSeeder extends Seeder {
   async run(rootEm: EntityManager): Promise<void> {
+    const password = process.env.SEED_PASSWORD;
+    if (!password || password.length < 12) {
+      throw new Error('Defina SEED_PASSWORD (mínimo 12 caracteres) em apps/api/.env para o seed.');
+    }
+    const passwordHash = await hash(password);
+
     await runAsSystem(rootEm, async (em) => {
-      await upsertUser(em, 'ana', 'Ana (seed)', 'admin');
-      await upsertUser(em, 'bruno', 'Bruno (seed)', 'user');
+      await upsertUser(em, 'ana', 'Ana (seed)', 'admin', passwordHash);
+      await upsertUser(em, 'bruno', 'Bruno (seed)', 'user', passwordHash);
       await em.flush();
     });
   }
@@ -23,8 +31,12 @@ async function upsertUser(
   username: string,
   name: string,
   role: User['role'],
-): Promise<User> {
-  const existing = await em.findOne(User, { username });
-  if (existing) return existing;
-  return em.create(User, { username, name, role });
+  passwordHash: string,
+): Promise<void> {
+  const existing = await em.findOne(User, { username }, { populate: ['passwordHash'] });
+  if (!existing) {
+    em.create(User, { username, name, role, passwordHash });
+  } else if (!existing.passwordHash) {
+    existing.passwordHash = passwordHash;
+  }
 }

@@ -3,6 +3,8 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
+  /** Endereço do front, usado nos links gerados (primeiro admin; convites na fatia 5). */
+  APP_URL: z.url().default('http://localhost:5173'),
 
   // Banco (Postgres). Em dev, o script apps/api/scripts/setup-dev-db.ps1 cria usuário e banco.
   DB_HOST: z.string().default('localhost'),

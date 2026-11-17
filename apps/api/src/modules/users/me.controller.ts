@@ -1,15 +1,13 @@
 import { type Me, updateMeSchema } from '@fluxo/contracts';
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { createZodDto } from 'nestjs-zod';
 import { AppContext } from '../../common/context/app-context';
-import { RequireUserGuard } from '../../common/guards/require-user.guard';
 import { UsersService } from './users.service';
 
 class UpdateMeDto extends createZodDto(updateMeSchema) {}
 
-// /api/me: perfil do usuário logado. A tela "Meu perfil" vem na fatia 6.
+// /api/me: perfil do usuário logado (exige sessão, pelo SessionGuard global). Tela na fatia 6.
 @Controller('me')
-@UseGuards(RequireUserGuard)
 export class MeController {
   constructor(private readonly users: UsersService) {}
 

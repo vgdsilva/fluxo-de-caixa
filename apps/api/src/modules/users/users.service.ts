@@ -4,14 +4,45 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import type { Role } from '../../common/context/app-context';
 import { User } from './user.entity';
 
+/** O que a autenticação precisa saber de um usuário (o hash nunca sai do módulo auth). */
+export interface UserCredentials {
+  id: string;
+  role: Role;
+  name: string;
+  passwordHash: string | null;
+}
+
 @Injectable()
 export class UsersService {
   constructor(private readonly em: EntityManager) {}
 
-  /** Id e papel do usuário ativo com este username, ou undefined. */
-  async findIdentityByUsername(username: string): Promise<{ id: string; role: Role } | undefined> {
-    const user = await this.em.findOne(User, { username }, { fields: ['id', 'role'] });
-    return user ? { id: user.id, role: user.role } : undefined;
+  /** Para o login: usuário ativo pelo username, com o hash da senha. */
+  async findCredentials(username: string): Promise<UserCredentials | undefined> {
+    const user = await this.em.findOne(User, { username }, { populate: ['passwordHash'] });
+    if (!user) return undefined;
+    return { id: user.id, role: user.role, name: user.name, passwordHash: user.passwordHash };
+  }
+
+  /** Papel do usuário ativo (usado a cada requisição pelo SessionGuard). */
+  async findRole(userId: string): Promise<Role | undefined> {
+    const user = await this.em.findOne(User, { id: userId }, { fields: ['role'] });
+    return user?.role;
+  }
+
+  /** Quantos usuários existem, inclusive removidos (o primeiro admin só pode ser criado com 0). */
+  async countAll(): Promise<number> {
+    return this.em.count(User, {}, { filters: { notDeleted: false } });
+  }
+
+  async createUser(input: {
+    username: string;
+    name: string;
+    role: Role;
+    passwordHash: string;
+  }): Promise<string> {
+    const user = this.em.create(User, input);
+    await this.em.flush();
+    return user.id;
   }
 
   async getMe(userId: string): Promise<Me> {

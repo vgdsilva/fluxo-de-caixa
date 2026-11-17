@@ -46,6 +46,7 @@ function readEnv(config: ConfigService<Env, true>): Env {
   return {
     NODE_ENV: config.get('NODE_ENV', { infer: true }),
     PORT: config.get('PORT', { infer: true }),
+    APP_URL: config.get('APP_URL', { infer: true }),
     DB_HOST: config.get('DB_HOST', { infer: true }),
     DB_PORT: config.get('DB_PORT', { infer: true }),
     DB_NAME: config.get('DB_NAME', { infer: true }),

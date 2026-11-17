@@ -10,7 +10,7 @@ modules/           uma pasta por funcionalidade (módulo Nest)
   health/            health.module.ts, health.controller.ts, health.service.ts
   users/             User (entidade), UsersService e /api/me
   audit/             AuditEntry, AuditSubscriber (grava no flush), AuditWriter e /api/audit
-  auth/              (fatia 4) sessão, login, convites, 2FA
+  auth/              Session, login/logout, primeiro admin (/api/auth), PasswordService (argon2)
 database/          MikroORM: mikro-orm.config.ts, entities.ts (registro), entities/ (BaseEntity, OwnedEntity),
                    filters.ts, subscribers/, system-context.ts, migrations/, seeders/
 ```

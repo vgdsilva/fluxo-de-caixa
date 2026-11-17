@@ -6,7 +6,6 @@ export type UserRole = 'admin' | 'user';
 
 /**
  * Usuário do sistema. Herda de BaseEntity (não de OwnedEntity): o usuário não tem dono, ele é o dono.
- * Na fatia 4 ganha hash de senha, 2FA e sessões; por enquanto só o necessário para os seeds.
  */
 @Entity({ tableName: 'users' })
 export class User extends BaseEntity {
@@ -18,4 +17,11 @@ export class User extends BaseEntity {
 
   @Enum({ items: ['admin', 'user'], default: 'user' })
   role: Opt<UserRole> = 'user';
+
+  /**
+   * Hash argon2id da senha. `hidden`: nunca sai em serialização e aparece como "***" na auditoria.
+   * null = usuário ainda sem senha definida (não consegue entrar).
+   */
+  @Property({ type: 'text', nullable: true, hidden: true, lazy: true })
+  passwordHash: Opt<string> | null = null;
 }

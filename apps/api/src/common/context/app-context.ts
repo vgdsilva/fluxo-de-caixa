@@ -11,7 +11,7 @@ export type Role = 'admin' | 'user';
  * do .NET: cada requisição enxerga o próprio valor, mesmo atravessando awaits.
  *
  * Quem abre: CorrelationIdMiddleware (toda requisição) e runAsSystem (jobs e seeds).
- * Quem preenche o usuário: DevUserMiddleware até a fatia 4; depois, a sessão.
+ * Quem preenche o usuário: SessionGuard (cookie de sessão) e o login.
  * Quem lê: filtro owner, subscribers de dono e de auditoria, guards.
  */
 interface AppContextStore {
