@@ -1,4 +1,4 @@
-# Cria (se ainda não existirem) o usuário e o banco de desenvolvimento no Postgres local,
+﻿# Cria (se ainda não existirem) o usuário e o banco de desenvolvimento no Postgres local,
 # usando DB_NAME, DB_USER e DB_PASSWORD de apps/api/.env.
 #
 # Rodar a partir da raiz do repo:  pnpm --filter @fluxo/api db:setup
@@ -29,7 +29,13 @@ if (-not $psql) {
 if (-not $psql) { throw 'psql não encontrado. Adicione a pasta bin do PostgreSQL ao PATH.' }
 
 $superUser = if ($env:PGSUPERUSER) { $env:PGSUPERUSER } else { 'postgres' }
-Write-Host "Conectando em ${dbHost}:${dbPort} como '$superUser' (o psql vai pedir a senha)..."
+
+# A senha é pedida aqui (e não pelo psql, que trava quando roda dentro do pnpm) e passada ao psql
+# só pela variável PGPASSWORD deste processo. Ela não é gravada em arquivo nem mostrada na tela.
+$secure = Read-Host "Senha do usuario '$superUser' do Postgres em ${dbHost}:${dbPort}" -AsSecureString
+$bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+$env:PGPASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
 
 $sql = @'
 SELECT format('CREATE ROLE %I LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE', :'app_user', :'app_password')
@@ -39,9 +45,19 @@ SELECT format('CREATE DATABASE %I OWNER %I ENCODING ''UTF8''', :'app_db', :'app_
 WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = :'app_db') \gexec
 '@
 
-$sql | & $psql -h $dbHost -p $dbPort -U $superUser -d postgres -v ON_ERROR_STOP=1 `
-  -v "app_user=$($cfg['DB_USER'])" -v "app_password=$($cfg['DB_PASSWORD'])" -v "app_db=$($cfg['DB_NAME'])" -q
-if ($LASTEXITCODE -ne 0) { throw "psql terminou com erro ($LASTEXITCODE)." }
+$sqlFile = Join-Path ([IO.Path]::GetTempPath()) "fluxo-setup-$([guid]::NewGuid()).sql"
+try {
+  [IO.File]::WriteAllText($sqlFile, $sql, [Text.UTF8Encoding]::new($false))
+  # -w: nunca pedir senha interativamente (usa PGPASSWORD); falha na hora se estiver errada.
+  & $psql -h $dbHost -p $dbPort -U $superUser -d postgres -w -v ON_ERROR_STOP=1 `
+    -v "app_user=$($cfg['DB_USER'])" -v "app_password=$($cfg['DB_PASSWORD'])" -v "app_db=$($cfg['DB_NAME'])" `
+    -q -f $sqlFile
+  $code = $LASTEXITCODE
+} finally {
+  Remove-Item $sqlFile -ErrorAction SilentlyContinue
+  Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue
+}
+if ($code -ne 0) { throw "psql terminou com erro ($code). Confira a senha do '$superUser'." }
 
 Write-Host "Pronto: banco '$($cfg['DB_NAME'])' com dono '$($cfg['DB_USER'])'."
 Write-Host 'Próximo passo: pnpm dev (as migrations rodam no start) e pnpm --filter @fluxo/api db:seed'
