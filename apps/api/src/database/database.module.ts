@@ -1,4 +1,4 @@
-import { MikroORM } from '@mikro-orm/postgresql';
+import { MikroORM, PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Global, Logger, Module, type OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -14,6 +14,8 @@ import { createOrmConfig } from './mikro-orm.config';
 @Module({
   imports: [
     MikroOrmModule.forRootAsync({
+      // Obrigatório no MikroORM 7 com useFactory: diz ao Nest qual MikroORM/EntityManager injetar.
+      driver: PostgreSqlDriver,
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>) => ({
         ...createOrmConfig(readEnv(config)),
