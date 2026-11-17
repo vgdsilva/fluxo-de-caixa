@@ -10,7 +10,7 @@
 - **`GET /api/setup/status`** (público) responde `{ required: true }` enquanto `SETUP_DB` não for `1`.
 - **`POST /api/setup`** (público, só enquanto `required`) cria o admin e marca `SETUP_DB = 1` na mesma transação, com a linha da flag travada (`SELECT ... FOR UPDATE`), então dois envios simultâneos não criam dois admins. Depois disso as duas rotas respondem `required: false` / 404. Auditoria: `create` do `User` (automática) e `setup_completed`.
 - **Front:** a guarda de rotas consulta o status uma vez; com setup pendente, qualquer tela leva a `/setup`; sem setup pendente, `/setup` leva ao login. Depois de criar o admin, o login segue pela tela de sessão (feed).
-- O seed de desenvolvimento cria `ana` (admin) e marca `SETUP_DB = 1`.
+- O seed de desenvolvimento não cria usuários (desde 17/11/2026); o admin vem sempre da tela de setup.
 - Sai o link de uso único no log (`FirstAdminService`).
 
 **Consequências.** Sem o token do log, quem abrir o app primeiro num banco novo pode criar o admin. Por isso o setup deve ser feito antes de publicar o app no Funnel (passo do checklist da fatia 8). A tabela `system_settings` serve para outras configurações do sistema no futuro (ex.: teto de custo da IA).

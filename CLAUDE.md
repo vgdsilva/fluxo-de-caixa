@@ -13,7 +13,7 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Configuração da API: copie `apps/api/.env.example` para `apps/api/.env`
 - Banco de dev (uma vez): `pnpm --filter @fluxo/api db:setup` (pede a senha do `postgres`; cria `fluxo_app` e `fluxo_dev`)
 - Nova migration: `pnpm --filter @fluxo/api db:migration:create` (as migrations rodam sozinhas no start da API)
-- Dados de exemplo: `pnpm --filter @fluxo/api db:seed` (usuários `ana`, admin, e `bruno`; senha = `SEED_PASSWORD` do `apps/api/.env`)
+- Dados de exemplo: `pnpm --filter @fluxo/api db:seed` (vazio por enquanto; o seed não cria usuários)
 - Testar a API pelo terminal: `POST /api/auth/login` com `curl -c cookies.txt`, depois `-b cookies.txt` (cookie `fluxo_sid`)
 - Ver a auditoria: `GET /api/audit?limit=20` logado como admin
 - Primeiro admin: com `SETUP_DB` = 0 na tabela `system_settings`, o front abre a tela `/setup` (ADR 0014). Nenhuma migration cria usuário.
