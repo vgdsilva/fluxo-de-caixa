@@ -2,6 +2,7 @@ import { type LoginInput, loginSchema, type Me } from '@fluxo/contracts';
 import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { CookieOptions, Request, Response } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { createZodDto } from 'nestjs-zod';
 import { Public } from '../../common/guards/public.decorator';
 import type { Env } from '../../config/env';
@@ -25,6 +26,8 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
+  // 10 tentativas por minuto por IP; o bloqueio por conta (5 erros) está no AuthService.
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   async login(
     @Body() body: LoginDto,
     @Req() req: Request,

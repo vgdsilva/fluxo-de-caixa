@@ -2,5 +2,7 @@
 export * from './audit';
 export * from './auth';
 export * from './health';
+export * from './invites';
+export * from './password-reset';
 export * from './setup';
 export * from './users';

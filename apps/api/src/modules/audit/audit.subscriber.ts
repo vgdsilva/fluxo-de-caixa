@@ -10,7 +10,16 @@ import { OwnedEntity } from '../../database/entities/owned.entity';
 import { type AuditChange, AuditEntry } from './audit-entry.entity';
 
 /** Campos que mudam em todo update e só poluiriam o histórico. */
-const IGNORED = new Set(['id', 'createdAt', 'updatedAt', 'version']);
+// failedLoginCount/lockedUntil: as tentativas e o bloqueio já viram eventos próprios (login_failed,
+// account_locked) pelo AuditWriter.
+const IGNORED = new Set([
+  'id',
+  'createdAt',
+  'updatedAt',
+  'version',
+  'failedLoginCount',
+  'lockedUntil',
+]);
 const MASK = '***';
 
 /**

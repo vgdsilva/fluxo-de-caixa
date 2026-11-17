@@ -34,6 +34,8 @@ async function request(path: string, options: RequestOptions = {}): Promise<Resp
       credentials: 'same-origin',
       headers: {
         Accept: 'application/json',
+        // Anti-CSRF: a API recusa escritas sem este cabeçalho (CsrfMiddleware).
+        'X-Requested-With': 'fluxo',
         ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       },
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
@@ -52,7 +54,8 @@ async function request(path: string, options: RequestOptions = {}): Promise<Resp
 async function errorMessage(response: Response): Promise<string> {
   const parsed = apiErrorSchema.safeParse(await response.json().catch(() => null));
   if (parsed.success) {
-    const { message } = parsed.data;
+    const { message, errors } = parsed.data;
+    if (errors?.length) return errors.map((e) => e.message).join(' ');
     return Array.isArray(message) ? message.join(' ') : message;
   }
   if (response.status >= 500) return 'O servidor encontrou um erro. Tente de novo em instantes.';

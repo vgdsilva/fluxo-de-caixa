@@ -91,7 +91,7 @@ async function submit() {
           role="status"
         >
           Peça ao administrador um link para redefinir a senha. Ele vale por 1 hora e só pode ser
-          usado uma vez.
+          usado uma vez. Ao abrir o link, você escolhe a senha nova.
         </p>
       </div>
 

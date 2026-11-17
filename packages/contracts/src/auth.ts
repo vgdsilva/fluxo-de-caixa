@@ -27,5 +27,9 @@ export const apiErrorSchema = z.object({
   statusCode: z.number(),
   message: z.union([z.string(), z.array(z.string())]),
   error: z.string().optional(),
+  /** Erros de validação (ZodValidationPipe): um por campo. */
+  errors: z
+    .array(z.object({ message: z.string(), path: z.array(z.unknown()).optional() }))
+    .optional(),
 });
 export type ApiErrorBody = z.infer<typeof apiErrorSchema>;

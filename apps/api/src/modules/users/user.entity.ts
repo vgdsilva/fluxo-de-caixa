@@ -15,6 +15,10 @@ export class User extends BaseEntity {
   @Property({ type: 'string', length: 120 })
   name!: string;
 
+  /** Informado no cadastro por convite. Não há envio de e-mail; serve para contato e conferência. */
+  @Property({ type: 'string', length: 254, nullable: true })
+  email: Opt<string> | null = null;
+
   @Enum({ items: ['admin', 'user'], default: 'user' })
   role: Opt<UserRole> = 'user';
 
@@ -24,4 +28,11 @@ export class User extends BaseEntity {
    */
   @Property({ type: 'text', nullable: true, hidden: true, lazy: true })
   passwordHash: Opt<string> | null = null;
+
+  /** Senhas erradas seguidas. Na 5ª, a conta fica bloqueada por 15 minutos. */
+  @Property({ type: 'integer', default: 0 })
+  failedLoginCount: Opt<number> = 0;
+
+  @Property({ type: 'datetime', nullable: true })
+  lockedUntil: Opt<Date> | null = null;
 }

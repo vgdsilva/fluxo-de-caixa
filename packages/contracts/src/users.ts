@@ -7,6 +7,7 @@ export const meSchema = z.object({
   id: z.uuid(),
   username: z.string(),
   name: z.string(),
+  email: z.string().nullable(),
   role: roleSchema,
   version: z.number().int(),
 });

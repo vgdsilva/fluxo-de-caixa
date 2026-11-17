@@ -43,6 +43,18 @@ export const router = createRouter({
       component: () => import('@/pages/auth/SetupPage.vue'),
       meta: { public: true, layout: 'auth' },
     },
+    {
+      path: '/convite',
+      name: 'invite',
+      component: () => import('@/pages/auth/InvitePage.vue'),
+      meta: { public: true, layout: 'auth' },
+    },
+    {
+      path: '/redefinir-senha',
+      name: 'reset-password',
+      component: () => import('@/pages/auth/ResetPasswordPage.vue'),
+      meta: { public: true, layout: 'auth' },
+    },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });

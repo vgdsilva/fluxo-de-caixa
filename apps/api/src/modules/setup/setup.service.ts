@@ -1,7 +1,8 @@
 import type { SetupInput } from '@fluxo/contracts';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AppContext } from '../../common/context/app-context';
+import { assertStrongPassword } from '../../common/validators/password-policy';
 import { AuditWriter } from '../audit/audit-writer.service';
 import { PasswordService } from '../auth/password.service';
 import { SettingsService } from '../settings/settings.service';
@@ -35,6 +36,7 @@ export class SetupService {
    * simultâneos não criam dois admins.
    */
   async run(input: SetupInput): Promise<void> {
+    assertStrongPassword(input.password, input);
     const passwordHash = await this.passwords.hash(input.password);
     AppContext.setChannel('auth');
 
@@ -42,9 +44,6 @@ export class SetupService {
       // Dentro do transactional, os serviços usam o EntityManager da transação automaticamente.
       if ((await this.settings.getForUpdate(SettingKey.SetupDb)) === '1') {
         throw new NotFoundException();
-      }
-      if (await this.users.findCredentials(input.username)) {
-        throw new ConflictException('Este usuário já existe.');
       }
       const id = await this.users.createUser({
         username: input.username,

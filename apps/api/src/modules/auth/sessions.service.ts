@@ -1,6 +1,6 @@
-import { createHash, randomBytes } from 'node:crypto';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { Injectable } from '@nestjs/common';
+import { generateToken, hashToken } from '../../common/utils/token';
 import { Session } from './session.entity';
 
 export const SESSION_COOKIE = 'fluxo_sid';
@@ -14,20 +14,16 @@ export interface ActiveSession {
   userId: string;
 }
 
-function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
-}
-
 @Injectable()
 export class SessionsService {
   constructor(private readonly em: EntityManager) {}
 
   /** Cria a sessão e devolve o token que vai no cookie (só existe aqui e no navegador). */
   async create(userId: string, info: { ip?: string; userAgent?: string }): Promise<string> {
-    const token = randomBytes(32).toString('base64url');
+    const { token, hash } = generateToken();
     const em = this.em.fork();
     em.create(Session, {
-      tokenHash: hashToken(token),
+      tokenHash: hash,
       userId,
       expiresAt: new Date(Date.now() + SESSION_TTL_MS),
       ip: info.ip?.slice(0, 64) ?? null,
@@ -59,5 +55,11 @@ export class SessionsService {
     session.revokedAt = new Date();
     await em.flush();
     return { sessionId: session.id, userId: session.userId };
+  }
+
+  /** Encerra todas as sessões ativas do usuário (troca de senha, reset de 2FA, desativação). */
+  async revokeAllForUser(userId: string): Promise<number> {
+    const em = this.em.fork();
+    return em.nativeUpdate(Session, { userId, revokedAt: null }, { revokedAt: new Date() });
   }
 }
