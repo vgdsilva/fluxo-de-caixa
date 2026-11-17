@@ -29,11 +29,6 @@ export class UsersService {
     return user?.role;
   }
 
-  /** Quantos usuários existem, inclusive removidos (o primeiro admin só pode ser criado com 0). */
-  async countAll(): Promise<number> {
-    return this.em.count(User, {}, { filters: { notDeleted: false } });
-  }
-
   async createUser(input: {
     username: string;
     name: string;

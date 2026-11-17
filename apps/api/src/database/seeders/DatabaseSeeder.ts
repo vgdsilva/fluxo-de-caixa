@@ -1,6 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import type { EntityManager } from '@mikro-orm/postgresql';
 import { Seeder } from '@mikro-orm/seeder';
+import { SystemSetting } from '../../modules/settings/system-setting.entity';
 import { User } from '../../modules/users/user.entity';
 import { runAsSystem } from '../system-context';
 
@@ -21,6 +22,8 @@ export class DatabaseSeeder extends Seeder {
     await runAsSystem(rootEm, async (em) => {
       await upsertUser(em, 'ana', 'Ana (seed)', 'admin', passwordHash);
       await upsertUser(em, 'bruno', 'Bruno (seed)', 'user', passwordHash);
+      // Com o admin do seed criado, o setup do primeiro acesso não é mais necessário.
+      await em.upsert(SystemSetting, { key: 'SETUP_DB', value: '1' });
       await em.flush();
     });
   }

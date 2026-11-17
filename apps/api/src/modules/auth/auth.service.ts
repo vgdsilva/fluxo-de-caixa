@@ -1,9 +1,8 @@
-import type { LoginInput, Me, SetupInput } from '@fluxo/contracts';
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import type { LoginInput, Me } from '@fluxo/contracts';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AppContext } from '../../common/context/app-context';
 import { AuditWriter } from '../audit/audit-writer.service';
 import { UsersService } from '../users/users.service';
-import { FirstAdminService } from './first-admin.service';
 import { PasswordService } from './password.service';
 import { SessionsService } from './sessions.service';
 
@@ -21,7 +20,6 @@ export class AuthService {
     private readonly users: UsersService,
     private readonly passwords: PasswordService,
     private readonly sessions: SessionsService,
-    private readonly firstAdmin: FirstAdminService,
     private readonly audit: AuditWriter,
   ) {}
 
@@ -70,36 +68,5 @@ export class AuthService {
         entityId: session.userId,
       });
     }
-  }
-
-  setupStatus(token: string): boolean {
-    if (!this.firstAdmin.isOpen()) throw new NotFoundException();
-    return this.firstAdmin.isValid(token);
-  }
-
-  /** Cria o primeiro admin a partir do link do log. Depois disso o setup fecha para sempre. */
-  async setup(input: SetupInput): Promise<void> {
-    if (!this.firstAdmin.isOpen()) throw new NotFoundException();
-    if (!this.firstAdmin.isValid(input.token)) {
-      throw new UnauthorizedException('Link de configuração inválido.');
-    }
-    if ((await this.users.countAll()) > 0) {
-      this.firstAdmin.close();
-      throw new NotFoundException();
-    }
-    AppContext.setChannel('auth');
-    const userId = await this.users.createUser({
-      username: input.username,
-      name: input.name,
-      role: 'admin',
-      passwordHash: await this.passwords.hash(input.password),
-    });
-    this.firstAdmin.close();
-    await this.audit.record({
-      action: 'first_admin_created',
-      userId,
-      entityType: 'User',
-      entityId: userId,
-    });
   }
 }

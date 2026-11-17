@@ -32,18 +32,19 @@ Critério da spec: admin criado no primeiro start e logado pelo front; o link mo
 | 13  | Auditoria do seed                                 | `update` de `User` com `passwordHash: "***"`                                    |
 | 14  | Logout e repetir `GET /api/me` com o mesmo cookie | 204, depois 401                                                                 |
 
-## Primeiro admin (banco vazio)
+## Primeiro admin pela flag SETUP_DB (ADR 0014)
 
-| #   | Ação                               | Esperado                                                                                          |
-| --- | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
-| 15  | Subir a API num banco sem usuários | Log: `Nenhum usuário cadastrado. Crie o primeiro admin em: http://localhost:5173/setup?token=...` |
-| 16  | Abrir o link                       | Formulário "Primeiro acesso"; com token errado, "Link inválido ou já usado"                       |
-| 17  | Senha com menos de 12 caracteres   | Erro de validação                                                                                 |
-| 18  | Criar o admin                      | Entra direto pelo feed de sessão                                                                  |
-| 19  | Abrir o link de novo               | 404 na API; tela "Link inválido ou já usado"                                                      |
+| #   | Ação                                                                 | Esperado                                                            |
+| --- | -------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| 15  | Banco novo: subir a API                                              | Migration cria `system_settings` com `SETUP_DB = 0`; nenhum usuário |
+| 16  | Abrir qualquer tela do app                                           | Vai para `/setup` ("Primeiro acesso")                               |
+| 17  | Senha com menos de 12 caracteres ou confirmação diferente            | Erro de validação na tela                                           |
+| 18  | Criar o admin                                                        | Feed de sessão e depois "Olá, <nome>"; `SETUP_DB` vira 1            |
+| 19  | `GET /api/setup/status` / `POST /api/setup` de novo / abrir `/setup` | `required: false` / 404 / vai para o login                          |
+| 20  | Banco que já tinha usuários, ao aplicar a migration                  | `SETUP_DB = 1` direto                                               |
 
-Para testar sem apagar o banco de dev, suba uma segunda API com outro banco: `DB_NAME=<banco vazio> PORT=3001 node dist/main.js` (variáveis de ambiente valem mais que o `.env`).
+Para testar sem mexer no banco de dev: crie um banco vazio, suba uma segunda API (`DB_NAME=<banco vazio> PORT=3001 node dist/main.js` em `apps/api`) e um Vite apontando para ela (`API_PROXY_TARGET=http://localhost:3001 npx vite --port 5174` em `apps/web`).
 
 ## Resultado em 17/11/2026
 
-Passos 1 e 3 a 8 no navegador embutido (desktop 1280x800 e celular 375px) e 9 a 19 pela API com curl: todos OK. O passo 2 (campos vazios) não foi testado no navegador. O primeiro admin foi testado num banco temporário (`cmdb_fluxo_setup_tmp`), apagado depois. As telas do passo 16 a 18 foram verificadas só pela API.
+Passos 1 e 3 a 8 no navegador embutido (desktop 1280x800 e celular 375px), 9 a 14 pela API com curl, 15 a 19 com um banco temporário (navegador na porta 5174) e 20 no banco de dev: todos OK. O passo 2 (campos vazios) não foi testado no navegador.

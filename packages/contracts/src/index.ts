@@ -2,4 +2,5 @@
 export * from './audit';
 export * from './auth';
 export * from './health';
+export * from './setup';
 export * from './users';

@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
+import { SetupModule } from './modules/setup/setup.module';
 import { UsersModule } from './modules/users/users.module';
 
 // O módulo raiz só compõe os módulos de feature. Cada feature é um módulo Nest próprio
@@ -25,6 +26,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     AuditModule,
     AuthModule,
+    SetupModule,
   ],
   providers: [
     // Valida todo @Body()/@Query() tipado com um DTO de createZodDto (schemas de @fluxo/contracts).

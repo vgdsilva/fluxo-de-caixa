@@ -17,3 +17,4 @@ Registros curtos de decisão (contexto, decisão, consequências). Uma decisão 
 | [0011](0011-persistencia-mikroorm-7.md)         | Persistência: MikroORM 7, entidades base, filtros e soft delete |
 | [0012](0012-auditoria.md)                       | Auditoria                                                       |
 | [0013](0013-login-e-sessao.md)                  | Login, sessão e primeiro admin                                  |
+| [0014](0014-setup-pela-flag-setup-db.md)        | Primeiro admin pela configuração SETUP_DB                       |

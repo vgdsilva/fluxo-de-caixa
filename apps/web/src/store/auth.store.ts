@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { ApiError } from '@/services/api';
 import { authService } from '@/services/auth.service';
+import { setupService } from '@/services/setup.service';
 
 /**
  * Estado de autenticação do app (store do Pinia, um singleton com estado).
@@ -24,6 +25,17 @@ export const useAuthStore = defineStore('auth', () => {
   const lastUsername = ref('');
 
   const isLoggedIn = computed(() => user.value !== null);
+  /** O sistema ainda não tem admin (SETUP_DB = 0)? null = ainda não perguntamos. */
+  const setupRequired = ref<boolean | null>(null);
+
+  async function ensureSetupChecked(): Promise<boolean> {
+    if (setupRequired.value === null) setupRequired.value = await setupService.isRequired();
+    return setupRequired.value;
+  }
+
+  function markSetupDone(): void {
+    setupRequired.value = false;
+  }
 
   async function ensureChecked(): Promise<void> {
     if (checked.value) return;
@@ -76,6 +88,9 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     checked,
     isLoggedIn,
+    setupRequired,
+    ensureSetupChecked,
+    markSetupDone,
     lastError,
     redirectTo,
     lastUsername,

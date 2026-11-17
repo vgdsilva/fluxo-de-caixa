@@ -22,19 +22,6 @@ export const loginSchema = z.object({
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
-/** GET /api/auth/setup/:token — o link de primeiro acesso ainda vale? */
-export const setupStatusSchema = z.object({ valid: z.boolean() });
-export type SetupStatus = z.infer<typeof setupStatusSchema>;
-
-/** POST /api/auth/setup — cria o primeiro admin a partir do link escrito no log da API. */
-export const setupSchema = z.object({
-  token: z.string().min(20).max(200),
-  username: usernameSchema,
-  name: z.string().trim().min(1, 'Informe o nome').max(120),
-  password: passwordSchema,
-});
-export type SetupInput = z.infer<typeof setupSchema>;
-
 /** Corpo de erro padrão da API (o que o Nest devolve em exceções HTTP). */
 export const apiErrorSchema = z.object({
   statusCode: z.number(),

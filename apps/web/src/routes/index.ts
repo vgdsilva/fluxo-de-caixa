@@ -53,6 +53,17 @@ export const router = createRouter({
  */
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
+
+  // Primeiro acesso: enquanto SETUP_DB não for 1 no banco, toda tela leva ao setup do admin.
+  let setupRequired = false;
+  try {
+    setupRequired = await auth.ensureSetupChecked();
+  } catch {
+    // API fora do ar: deixa abrir e a tela mostra o erro.
+  }
+  if (setupRequired) return to.name === 'setup' ? true : { name: 'setup' };
+  if (to.name === 'setup') return { name: 'login' };
+
   if (to.meta.public) {
     // Já logado e abrindo o formulário de login: vai direto para o app.
     if (to.name === 'login' && auth.checked && auth.isLoggedIn) return { name: 'home' };

@@ -6,7 +6,6 @@ import { AuditModule } from '../audit/audit.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { FirstAdminService } from './first-admin.service';
 import { PasswordService } from './password.service';
 import { SessionsService } from './sessions.service';
 
@@ -22,7 +21,6 @@ import { SessionsService } from './sessions.service';
     AuthService,
     PasswordService,
     SessionsService,
-    FirstAdminService,
     { provide: APP_GUARD, useClass: SessionGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],

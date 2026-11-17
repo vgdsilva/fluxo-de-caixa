@@ -1,11 +1,5 @@
-import {
-  type LoginInput,
-  loginSchema,
-  type Me,
-  type SetupStatus,
-  setupSchema,
-} from '@fluxo/contracts';
-import { Body, Controller, Get, HttpCode, Param, Post, Req, Res } from '@nestjs/common';
+import { type LoginInput, loginSchema, type Me } from '@fluxo/contracts';
+import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { CookieOptions, Request, Response } from 'express';
 import { createZodDto } from 'nestjs-zod';
@@ -15,10 +9,9 @@ import { AuthService } from './auth.service';
 import { SESSION_COOKIE, SESSION_TTL_MS } from './sessions.service';
 
 class LoginDto extends createZodDto(loginSchema) {}
-class SetupDto extends createZodDto(setupSchema) {}
 
 /**
- * /api/auth: login, logout e primeiro admin. Tudo aqui é @Public(), porque quem chama ainda
+ * /api/auth: login e logout. Tudo aqui é @Public(), porque quem chama ainda
  * não tem sessão. `passthrough: true` deixa o Nest serializar o retorno mesmo usando `res`
  * para escrever o cookie.
  */
@@ -51,17 +44,6 @@ export class AuthController {
     const token = (req.cookies as Record<string, string> | undefined)?.[SESSION_COOKIE];
     await this.auth.logout(token);
     res.clearCookie(SESSION_COOKIE, { ...this.cookieOptions(), maxAge: undefined });
-  }
-
-  @Get('setup/:token')
-  setupStatus(@Param('token') token: string): SetupStatus {
-    return { valid: this.auth.setupStatus(token) };
-  }
-
-  @Post('setup')
-  @HttpCode(204)
-  async setup(@Body() body: SetupDto): Promise<void> {
-    await this.auth.setup(body);
   }
 
   /** Cookie da sessão: HttpOnly (JS não lê), SameSite=Lax, Secure em produção (HTTPS do Funnel). */

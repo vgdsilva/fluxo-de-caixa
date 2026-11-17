@@ -16,7 +16,8 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Dados de exemplo: `pnpm --filter @fluxo/api db:seed` (usuários `ana`, admin, e `bruno`; senha = `SEED_PASSWORD` do `apps/api/.env`)
 - Testar a API pelo terminal: `POST /api/auth/login` com `curl -c cookies.txt`, depois `-b cookies.txt` (cookie `fluxo_sid`)
 - Ver a auditoria: `GET /api/audit?limit=20` logado como admin
-- Primeiro admin: com o banco sem usuários, a API escreve no log o link `/setup?token=...`
+- Primeiro admin: com `SETUP_DB` = 0 na tabela `system_settings`, o front abre a tela `/setup` (ADR 0014). Nenhuma migration cria usuário.
+- Migration com SQL manual (dados): se o `pnpm dev` estiver rodando, o `nest --watch` aplica a migration assim que o arquivo é gerado. Pare o dev antes, ou escreva o arquivo completo de uma vez.
 - Testes automatizados: ainda não existem (entram depois da fase 0). Os runners já estão configurados (Jest na api, Vitest no web).
 
 ## Regras que não se quebram
