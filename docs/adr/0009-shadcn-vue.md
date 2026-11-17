@@ -10,5 +10,5 @@
 
 - Novo componente: `pnpm dlx shadcn-vue@latest add <nome>` dentro de `apps/web` (config em `apps/web/components.json`).
 - Os arquivos em `components/ui/` são nossos e podem ser editados, mas evite mudanças grandes para não perder a facilidade de regenerar. O lint relaxa duas regras de nomes/props só nessa pasta.
-- Tema por variáveis CSS em `apps/web/src/shared/styles.css` (cor base neutral, modo escuro pela classe `.dark`).
+- Tema por variáveis CSS em `apps/web/src/assets/styles/main.css` (cor base neutral, modo escuro pela classe `.dark`).
 - Tabelas e formulários mais ricos (fatia 6 em diante) usam os componentes `table`, `form` e `data-table` do shadcn, com TanStack Table quando precisar de ordenação e filtro.

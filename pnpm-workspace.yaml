@@ -3,5 +3,5 @@ packages:
   - packages/*
 allowBuilds:
   esbuild: true
-  # Tem bin�rios pr�-compilados; o script de build � s� fallback.
+  # Tem binários pré-compilados; o script de build é só fallback.
   '@parcel/watcher': false

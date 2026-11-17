@@ -14,6 +14,7 @@ apps/api            NestJS 11 (API em /api)
 apps/web            Vue 3 + Vite + Pinia + Tailwind + shadcn-vue (SPA/PWA)
 packages/contracts  schemas zod compartilhados (@fluxo/contracts)
 docs/               plano, spec da fase 0, ADRs, roteiros de verificação
+turbo.json          tarefas do Turborepo (dev, build, lint, typecheck, test)
 ```
 
 ## Rodando local

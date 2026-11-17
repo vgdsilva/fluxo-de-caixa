@@ -1,13 +1,13 @@
 # Fluxo de Caixa
 
-App pessoal de fluxo de caixa e projeção financeira. Monorepo pnpm: `apps/web` (Vue 3 + Vite + Pinia + Vue Router + Tailwind + shadcn-vue, PWA), `apps/api` (NestJS 11 + MikroORM + PostgreSQL), `packages/contracts` (schemas zod compartilhados). Plano: `docs/plano-base.md`. Fase atual: `docs/fase-0.md` (fatias 1 a 8). Decisões: `docs/adr/`.
+App pessoal de fluxo de caixa e projeção financeira. Monorepo pnpm: `apps/web` (Vue 3 + Vite + Pinia + Vue Router + Tailwind + shadcn-vue, PWA), `apps/api` (NestJS 11 + MikroORM + PostgreSQL), `packages/contracts` (schemas zod compartilhados). Plano: `docs/plano-base.md`. Fase atual: `docs/fase-0.md` (fatias 1 a 8). Decisões: `docs/adr/`. Estrutura de pastas: ADR 0010 e os READMEs em `apps/api/src` e `apps/web/src`.
 
 O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio do Nest ou do Vue, explique em uma frase (comentário ou PR) e, se for recorrente, acrescente em `docs/guia-nest-vue-para-dotnet.md`.
 
 ## Comandos
 
 - Instalar: `pnpm install`
-- Rodar local: `pnpm dev` (contracts em watch, api em :3000, web em :5173 com proxy de `/api`)
+- Rodar local: `pnpm dev` (Turborepo: compila contracts, depois api em :3000 e web em :5173 com proxy de `/api`)
 - Checagens (as mesmas da CI): `pnpm format:check && pnpm lint && pnpm typecheck && pnpm build`
 - Formatar: `pnpm format`
 - Configuração da API: copie `apps/api/.env.example` para `apps/api/.env`
@@ -33,6 +33,12 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Componentes: shadcn-vue + Tailwind 4 (ADR 0009), não PrimeVue. Componente novo: `pnpm dlx shadcn-vue@latest add <nome>` em `apps/web`; o código vai para `src/components/ui/`.
 - Node: CI usa a versão do `.nvmrc` (24); localmente funciona com Node >= 22.12.
 
+## Onde fica cada coisa
+
+- API: `modules/<feature>/` (module, controller, service, entity), `common/` (guards, interceptors, middleware, validators, utils, constants), `config/`, `database/` (fatia 2). Auth = `modules/auth/`.
+- Web: `pages/` (telas), `components/{ui,common,layout}`, `composables/` (lógica reativa, o "hook" do Vue), `services/api/` (HTTP), `stores/` (Pinia), `router/`, `utils/`, `assets/`.
+- Componente não chama `fetch`: usa um composable, que usa `services/api`.
+
 ## Glossário (código = interface)
 
 - OwnedEntity = registro com dono
@@ -42,7 +48,7 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 
 ## Como trabalhar
 
-- Branches: `feature/<descricao-curta>` para funcionalidade nova (ex.: `feature/fatia-2-persistencia`) e `hotfix/<descricao-curta>` para correção. Nada de commit direto no `master`.
+- Branches: `feature/<descricao-curta>` para funcionalidade nova (ex.: `feature/fatia-2-persistencia`) e `hotfix/<descricao-curta>` para correção. Nada de commit direto no `main` nem no `develop`. Até o fim da fase 1, tudo vai no branch `feature/new-rebrand`.
 - Uma fatia vertical por sessão (contrato + API + tela); PR pequeno, com o roteiro de verificação manual.
 - Decisão de arquitetura nova = ADR em `docs/adr` antes do código.
 - Ao fechar uma fatia, atualize este arquivo se surgiu convenção nova.
