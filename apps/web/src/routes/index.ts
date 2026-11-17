@@ -5,6 +5,8 @@ declare module 'vue-router' {
   interface RouteMeta {
     /** Abre sem login. */
     public?: boolean;
+    /** Só para estes papéis (a API também confere). */
+    roles?: Array<'admin' | 'user'>;
     /** 'auth' = tela dividida do login (sem o cabeçalho do app). */
     layout?: 'app' | 'auth';
   }
@@ -55,6 +57,29 @@ export const router = createRouter({
       component: () => import('@/pages/auth/ResetPasswordPage.vue'),
       meta: { public: true, layout: 'auth' },
     },
+    {
+      path: '/perfil',
+      name: 'profile',
+      component: () => import('@/pages/profile/ProfilePage.vue'),
+    },
+    {
+      path: '/admin/usuarios',
+      name: 'admin-users',
+      component: () => import('@/pages/admin/AdminUsersPage.vue'),
+      meta: { roles: ['admin'] },
+    },
+    {
+      path: '/admin/convites',
+      name: 'admin-invites',
+      component: () => import('@/pages/admin/AdminInvitesPage.vue'),
+      meta: { roles: ['admin'] },
+    },
+    {
+      path: '/admin/auditoria',
+      name: 'admin-audit',
+      component: () => import('@/pages/admin/AdminAuditPage.vue'),
+      meta: { roles: ['admin'] },
+    },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });
@@ -91,5 +116,6 @@ router.beforeEach(async (to) => {
     auth.redirectTo = to.fullPath;
     return { name: 'login' };
   }
+  if (to.meta.roles && !to.meta.roles.includes(auth.user!.role)) return { name: 'home' };
   return true;
 });

@@ -10,7 +10,8 @@ modules/           uma pasta por funcionalidade (módulo Nest)
   health/            health.module.ts, health.controller.ts, health.service.ts
   users/             User (entidade), UsersService e /api/me
   audit/             AuditEntry, AuditSubscriber (grava no flush), AuditWriter e /api/audit
-  auth/              Session, login/logout (/api/auth), PasswordService (argon2), guards globais
+  auth/              Session, login/logout (/api/auth), PasswordService (argon2), guards globais,
+                     conta (/api/me/password, /api/me/sessions) e admin de usuários (/api/admin/users)
   invites/           convites (admin cria/lista/revoga; convidado aceita em /api/invites)
   settings/          SystemSetting (tabela system_settings, ex.: SETUP_DB) e SettingsService
   setup/             primeiro acesso: /api/setup/status e /api/setup (cria o admin)

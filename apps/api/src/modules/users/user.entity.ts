@@ -35,4 +35,12 @@ export class User extends BaseEntity {
 
   @Property({ type: 'datetime', nullable: true })
   lockedUntil: Opt<Date> | null = null;
+
+  /** Desativado pelo admin: não entra e todas as sessões são encerradas. Reversível. */
+  @Property({ type: 'datetime', nullable: true })
+  deactivatedAt: Opt<Date> | null = null;
+
+  /** Último login com sucesso (só informativo, para a tela do admin). */
+  @Property({ type: 'datetime', nullable: true })
+  lastLoginAt: Opt<Date> | null = null;
 }

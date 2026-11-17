@@ -41,9 +41,9 @@ export class SessionGuard implements CanActivate {
     if (!session) throw new UnauthorizedException();
 
     const role = await this.users.findRole(session.userId);
-    if (!role) throw new UnauthorizedException(); // usuário removido
+    if (!role) throw new UnauthorizedException(); // usuário removido ou desativado
 
-    AppContext.setUser(session.userId, role);
+    AppContext.setUser(session.userId, role, session.sessionId);
     return true;
   }
 }

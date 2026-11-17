@@ -1,4 +1,4 @@
-import type { Me, UpdateMe } from '@fluxo/contracts';
+import type { AdminUser, Me, UpdateMe } from '@fluxo/contracts';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import type { Role } from '../../common/context/app-context';
@@ -12,6 +12,7 @@ export interface UserCredentials {
   name: string;
   passwordHash: string | null;
   lockedUntil: Date | null;
+  deactivated: boolean;
 }
 
 export interface UserSummary {
@@ -40,6 +41,7 @@ export class UsersService {
       name: user.name,
       passwordHash: user.passwordHash,
       lockedUntil: user.lockedUntil,
+      deactivated: user.deactivatedAt !== null,
     };
   }
 
@@ -49,10 +51,49 @@ export class UsersService {
     return { id: user.id, username: user.username, name: user.name, email: user.email };
   }
 
-  /** Papel do usuário ativo (usado a cada requisição pelo SessionGuard). */
+  /** Papel do usuário ativo e não desativado (usado a cada requisição pelo SessionGuard). */
   async findRole(userId: string): Promise<Role | undefined> {
-    const user = await this.em.findOne(User, { id: userId }, { fields: ['role'] });
+    const user = await this.em.findOne(
+      User,
+      { id: userId, deactivatedAt: null },
+      { fields: ['role'] },
+    );
     return user?.role;
+  }
+
+  /** Hash da senha atual (para conferir antes de trocar). */
+  async getPasswordHash(userId: string): Promise<string | null> {
+    const user = await this.em.findOneOrFail(User, { id: userId }, { populate: ['passwordHash'] });
+    return user.passwordHash;
+  }
+
+  async markLogin(userId: string): Promise<void> {
+    const user = await this.em.findOneOrFail(User, { id: userId });
+    user.lastLoginAt = new Date();
+    await this.em.flush();
+  }
+
+  /** Lista para a tela do admin (inclui desativados; removidos de verdade não aparecem). */
+  async listForAdmin(): Promise<AdminUser[]> {
+    const users = await this.em.find(User, {}, { orderBy: { createdAt: 'asc' } });
+    return users.map((u) => ({
+      id: u.id,
+      username: u.username,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      active: u.deactivatedAt === null,
+      createdAt: u.createdAt.toISOString(),
+      lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
+    }));
+  }
+
+  /** Desativa ou reativa (o admin cuida das sessões). Gera auditoria automática do User. */
+  async setActive(userId: string, active: boolean): Promise<void> {
+    const user = await this.em.findOne(User, { id: userId });
+    if (!user) throw new NotFoundException('Usuário não encontrado.');
+    user.deactivatedAt = active ? null : new Date();
+    await this.em.flush();
   }
 
   /** O username já foi usado, inclusive por usuário removido (o índice único vale para todos). */

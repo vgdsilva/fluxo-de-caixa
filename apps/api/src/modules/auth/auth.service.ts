@@ -32,6 +32,16 @@ export class AuthService {
     const user = await this.users.findCredentials(input.username);
     const clientMeta = { ip: client.ip ?? null, userAgent: client.userAgent ?? null };
 
+    // Desativado pelo admin: mesma mensagem genérica, mas a auditoria registra o motivo.
+    if (user?.deactivated) {
+      await this.audit.record({
+        action: 'login_failed',
+        userId: user.id,
+        metadata: { username: input.username, reason: 'deactivated', ...clientMeta },
+      });
+      throw new UnauthorizedException(INVALID_CREDENTIALS);
+    }
+
     // Conta bloqueada por tentativas: nem confere a senha.
     if (user?.lockedUntil && user.lockedUntil.getTime() > Date.now()) {
       await this.audit.record({
@@ -71,6 +81,7 @@ export class AuthService {
     }
 
     await this.users.clearFailedLogins(user.id);
+    await this.users.markLogin(user.id);
     const token = await this.sessions.create(user.id, client);
     AppContext.setUser(user.id, user.role);
     await this.audit.record({

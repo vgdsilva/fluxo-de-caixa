@@ -9,7 +9,7 @@ src/
     common/              componentes nossos reaproveitáveis (ex.: ApiStatus)
     ui/                  componentes do shadcn-vue (gerados pelo CLI, ver ADR 0009)
     layout/              casca das telas (AppLayout)
-  pages/                 uma tela por rota (pages/auth/ na fatia 4, pages/admin/ na fatia 6)
+  pages/                 uma tela por rota: auth/ (login, setup, convite, redefinir senha), profile/, admin/
   hooks/                 lógica reativa reaproveitável (useApiHealth); no Vue se chamam composables
   context/               estado de uma parte da árvore via provide/inject (o Context do React)
   services/              chamadas HTTP: api.ts (cliente que valida com @fluxo/contracts) + um *.service.ts por área

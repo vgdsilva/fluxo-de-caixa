@@ -19,3 +19,4 @@ Registros curtos de decisão (contexto, decisão, consequências). Uma decisão 
 | [0013](0013-login-e-sessao.md)                  | Login, sessão e primeiro admin                                  |
 | [0014](0014-setup-pela-flag-setup-db.md)        | Primeiro admin pela configuração SETUP_DB                       |
 | [0015](0015-convites-protecoes-e-sem-2fa.md)    | Convites, proteções do login e login sem 2FA                    |
+| [0016](0016-telas-perfil-admin-e-pwa.md)        | Telas de perfil e admin, desativação de usuário e PWA           |

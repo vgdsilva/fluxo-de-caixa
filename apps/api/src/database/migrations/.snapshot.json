@@ -1000,6 +1000,23 @@
           "enumItems": [],
           "mappedType": "datetime"
         },
+        "deactivated_at": {
+          "name": "deactivated_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
         "deleted_at": {
           "name": "deleted_at",
           "type": "timestamptz(6)",
@@ -1067,6 +1084,23 @@
           "collation": null,
           "enumItems": [],
           "mappedType": "uuid"
+        },
+        "last_login_at": {
+          "name": "last_login_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "collation": null,
+          "enumItems": [],
+          "mappedType": "datetime"
         },
         "locked_until": {
           "name": "locked_until",

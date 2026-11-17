@@ -19,6 +19,7 @@ interface AppContextStore {
   channel: Channel;
   userId?: string;
   role?: Role;
+  sessionId?: string;
   /** Jobs e seeds: sem filtro de dono. Só via runAsSystem (src/database/system-context.ts). */
   system?: boolean;
 }
@@ -44,10 +45,16 @@ export const AppContext = {
   },
 
   /** Identifica o usuário da requisição atual (middleware de dev; sessão a partir da fatia 4). */
-  setUser(userId: string, role: Role): void {
+  setUser(userId: string, role: Role, sessionId?: string): void {
     const store = requireStore();
     store.userId = userId;
     store.role = role;
+    if (sessionId) store.sessionId = sessionId;
+  },
+
+  /** Sessão desta requisição (para "encerrar as outras" e marcar a atual na lista). */
+  sessionId(): string | undefined {
+    return storage.getStore()?.sessionId;
   },
 
   setChannel(channel: Channel): void {

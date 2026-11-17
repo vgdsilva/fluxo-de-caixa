@@ -57,6 +57,36 @@ export class SessionsService {
     return { sessionId: session.id, userId: session.userId };
   }
 
+  /** Sessões abertas (não revogadas e não expiradas) do usuário, mais recentes primeiro. */
+  async listActive(userId: string): Promise<Session[]> {
+    return this.em.find(
+      Session,
+      { userId, revokedAt: null, expiresAt: { $gt: new Date() } },
+      { orderBy: { lastSeenAt: 'desc' } },
+    );
+  }
+
+  /** Encerra uma sessão do próprio usuário (o filtro por userId impede mexer na de outro). */
+  async revokeOwn(userId: string, sessionId: string): Promise<boolean> {
+    const em = this.em.fork();
+    const count = await em.nativeUpdate(
+      Session,
+      { id: sessionId, userId, revokedAt: null },
+      { revokedAt: new Date() },
+    );
+    return count > 0;
+  }
+
+  /** Encerra todas as sessões do usuário menos a informada ("sair dos outros aparelhos"). */
+  async revokeOthers(userId: string, keepSessionId: string): Promise<number> {
+    const em = this.em.fork();
+    return em.nativeUpdate(
+      Session,
+      { userId, revokedAt: null, id: { $ne: keepSessionId } },
+      { revokedAt: new Date() },
+    );
+  }
+
   /** Encerra todas as sessões ativas do usuário (troca de senha, reset de 2FA, desativação). */
   async revokeAllForUser(userId: string): Promise<number> {
     const em = this.em.fork();

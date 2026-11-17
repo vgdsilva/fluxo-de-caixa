@@ -19,6 +19,7 @@ const IGNORED = new Set([
   'version',
   'failedLoginCount',
   'lockedUntil',
+  'lastLoginAt',
 ]);
 const MASK = '***';
 

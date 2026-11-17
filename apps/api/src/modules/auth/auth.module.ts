@@ -5,6 +5,8 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { SessionGuard } from '../../common/guards/session.guard';
 import { AuditModule } from '../audit/audit.module';
 import { UsersModule } from '../users/users.module';
+import { AdminUsersController, MySecurityController } from './account.controller';
+import { AccountService } from './account.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AdminPasswordResetController, PasswordResetController } from './password-reset.controller';
@@ -19,12 +21,19 @@ import { SessionsService } from './sessions.service';
  */
 @Module({
   imports: [UsersModule, AuditModule],
-  controllers: [AuthController, AdminPasswordResetController, PasswordResetController],
+  controllers: [
+    AuthController,
+    AdminPasswordResetController,
+    PasswordResetController,
+    MySecurityController,
+    AdminUsersController,
+  ],
   providers: [
     AuthService,
     PasswordService,
     SessionsService,
     PasswordResetService,
+    AccountService,
     // Limite de requisições por IP (rotas sensíveis baixam o limite com @Throttle).
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: SessionGuard },

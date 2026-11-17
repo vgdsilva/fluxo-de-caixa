@@ -62,7 +62,7 @@ export default tseslint.config(
 
   // Configs de ferramentas (Node)
   {
-    files: ['**/*.config.{js,ts}', '**/tsup.config.ts'],
+    files: ['**/*.config.{js,ts}', '**/tsup.config.ts', '**/scripts/**/*.{js,mjs}'],
     languageOptions: { globals: globals.node },
   },
 
