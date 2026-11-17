@@ -122,6 +122,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /*
+   * Sem o "efeito elástico" do celular: a página só rola quando o conteúdo é maior que a tela.
+   * (Também desliga o "puxar para atualizar" do Chrome no Android, como num app instalado.)
+   */
+  html,
+  body {
+    overscroll-behavior: none;
+  }
   body {
     @apply bg-background text-foreground;
     @apply font-sans;
