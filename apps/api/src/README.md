@@ -11,6 +11,7 @@ modules/           uma pasta por funcionalidade (módulo Nest)
   users/             User (entidade), UsersService e /api/me
   audit/             AuditEntry, AuditSubscriber (grava no flush), AuditWriter e /api/audit
   auth/              Session, login/logout (/api/auth), PasswordService (argon2), guards globais
+  invites/           convites (admin cria/lista/revoga; convidado aceita em /api/invites)
   settings/          SystemSetting (tabela system_settings, ex.: SETUP_DB) e SettingsService
   setup/             primeiro acesso: /api/setup/status e /api/setup (cria o admin)
 database/          MikroORM: mikro-orm.config.ts, entities.ts (registro), entities/ (BaseEntity, OwnedEntity),

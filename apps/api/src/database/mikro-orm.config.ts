@@ -34,6 +34,8 @@ export function createOrmConfig(env: Env): Options {
       pathTs: 'src/database/migrations',
       transactional: true,
       allOrNothing: true,
+      // Nome fixo (o padrão leva o nome do banco e cria um arquivo por banco).
+      snapshotName: '.snapshot',
     },
     seeder: {
       path: 'dist/database/seeders',

@@ -14,7 +14,9 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Banco de dev (uma vez): `pnpm --filter @fluxo/api db:setup` (pede a senha do `postgres`; cria `fluxo_app` e `fluxo_dev`)
 - Nova migration: `pnpm --filter @fluxo/api db:migration:create` (as migrations rodam sozinhas no start da API)
 - Dados de exemplo: `pnpm --filter @fluxo/api db:seed` (vazio por enquanto; o seed não cria usuários)
-- Testar a API pelo terminal: `POST /api/auth/login` com `curl -c cookies.txt`, depois `-b cookies.txt` (cookie `fluxo_sid`)
+- Testar a API pelo terminal: `POST /api/auth/login` com `curl -c cookies.txt`, depois `-b cookies.txt` (cookie `fluxo_sid`). Toda escrita precisa de `-H "X-Requested-With: fluxo"` (anti-CSRF).
+- Login: só usuário e senha, sem 2FA (decisão do dono, ADR 0015). O 2FA pronto está guardado no branch local `feature/2fa-totp`; não reintroduzir sem o dono pedir.
+- Convites: admin cria em `POST /api/admin/invites`; reset de senha: `POST /api/admin/users/:id/password-reset`.
 - Ver a auditoria: `GET /api/audit?limit=20` logado como admin
 - Primeiro admin: com `SETUP_DB` = 0 na tabela `system_settings`, o front abre a tela `/setup` (ADR 0014). Nenhuma migration cria usuário.
 - Migration com SQL manual (dados): se o `pnpm dev` estiver rodando, o `nest --watch` aplica a migration assim que o arquivo é gerado. Pare o dev antes, ou escreva o arquivo completo de uma vez.
