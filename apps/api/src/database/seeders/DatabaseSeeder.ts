@@ -1,4 +1,3 @@
-import type { EntityManager } from '@mikro-orm/postgresql';
 import { Seeder } from '@mikro-orm/seeder';
 
 /**
@@ -8,7 +7,7 @@ import { Seeder } from '@mikro-orm/seeder';
  * Rodar: `pnpm --filter @fluxo/api db:seed`
  */
 export class DatabaseSeeder extends Seeder {
-  async run(_em: EntityManager): Promise<void> {
+  async run(): Promise<void> {
     // Nada a semear ainda.
   }
 }
