@@ -1,5 +1,5 @@
 import { ChangeSetType, type EventSubscriber, type FlushEventArgs } from '@mikro-orm/core';
-import { CurrentUserContext } from '../../common/context/current-user.context';
+import { AppContext } from '../../common/context/app-context';
 import { BaseEntity } from '../entities/base.entity';
 import { OwnedEntity } from '../entities/owned.entity';
 
@@ -18,7 +18,7 @@ export class BaseEntitySubscriber implements EventSubscriber {
 
       if (changeSet.type === ChangeSetType.CREATE && entity instanceof OwnedEntity) {
         if (!entity.ownerId) {
-          const userId = CurrentUserContext.userId();
+          const userId = AppContext.userId();
           if (!userId) {
             throw new Error(
               `${changeSet.meta.className} criado sem usuário na requisição; informe ownerId só em runAsSystem.`,
@@ -26,10 +26,7 @@ export class BaseEntitySubscriber implements EventSubscriber {
           }
           entity.ownerId = userId;
           uow.recomputeSingleChangeSet(entity);
-        } else if (
-          !CurrentUserContext.isSystem() &&
-          entity.ownerId !== CurrentUserContext.userId()
-        ) {
+        } else if (!AppContext.isSystem() && entity.ownerId !== AppContext.userId()) {
           throw new Error(
             `${changeSet.meta.className} não pode ser criado em nome de outro usuário.`,
           );

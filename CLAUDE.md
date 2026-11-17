@@ -14,7 +14,8 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Banco de dev (uma vez): `pnpm --filter @fluxo/api db:setup` (pede a senha do `postgres`; cria `fluxo_app` e `fluxo_dev`)
 - Nova migration: `pnpm --filter @fluxo/api db:migration:create` (as migrations rodam sozinhas no start da API)
 - Dados de exemplo: `pnpm --filter @fluxo/api db:seed` (usuários `ana` e `bruno`)
-- Testar como um usuário (só em dev, até a fatia 4): cabeçalho `X-Dev-User: ana`
+- Testar como um usuário (só em dev, até a fatia 4): cabeçalho `X-Dev-User: ana` (ana é admin)
+- Ver a auditoria: `GET /api/audit?limit=20` como admin
 - Testes automatizados: ainda não existem (entram depois da fase 0). Os runners já estão configurados (Jest na api, Vitest no web).
 
 ## Regras que não se quebram
@@ -39,7 +40,7 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 ## Onde fica cada coisa
 
 - API: `modules/<feature>/` (module, controller, service, entity, dto), `common/` (context, guards, interceptors, middleware, validators, utils, constants), `config/`, `database/` (config do MikroORM, entidades base, filtros, subscriber, migrations, seeders). Auth = `modules/auth/`.
-- Entidade nova: estende `OwnedEntity` (dado de usuário) ou `BaseEntity`, entra em `database/entities.ts`, gera migration. Tipo de coluna sempre explícito (`@Property({ type: ... })`); campos com default usam `Opt<T>`. Serviço nunca filtra por `ownerId`/`deletedAt` à mão. DTO = `createZodDto(schema de @fluxo/contracts)`. Molde completo de módulo com entidade dona + CRUD: commit `46664bf` (módulo notes, removido depois).
+- Entidade nova: estende `OwnedEntity` (dado de usuário) ou `BaseEntity`, entra em `database/entities.ts`, gera migration. Tipo de coluna sempre explícito (`@Property({ type: ... })`); campos com default usam `Opt<T>`. Serviço nunca filtra por `ownerId`/`deletedAt` à mão nem grava auditoria de alteração à mão (o `AuditSubscriber` grava). Eventos sem entidade (login etc.) usam o `AuditWriter`. Campo sensível na entidade = `hidden: true` (sai mascarado na auditoria). Índice único em entidade com soft delete deve ser parcial (`where deleted_at is null`), senão um registro apagado bloqueia o valor. DTO = `createZodDto(schema de @fluxo/contracts)`. Molde completo de módulo com entidade dona + CRUD: commit `46664bf` (módulo notes, removido depois).
 - Web (nomes fixos, pedidos pelo dono): `public/{images,icons,favicon.ico}`; em `src/`: `assets/`, `components/{common,ui,layout}`, `pages/`, `hooks/` (composables do Vue, `useX.ts`), `context/` (provide/inject), `services/` (`api.ts` + `*.service.ts`), `utils/`, `routes/` (Vue Router), `store/` (Pinia). Não renomeie para `composables/`, `router/` ou `stores/`.
 - Componente não chama `fetch`: usa um hook, que usa `services/`.
 
@@ -47,7 +48,8 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 
 - OwnedEntity = registro com dono
 - Invite = convite
-- AuditEntry = registro de auditoria
+- AuditEntry = registro de auditoria (`audit.entries`)
+- AppContext = contexto da requisição (usuário, papel, canal, CorrelationId)
 - (fase 1) Statement = fatura, Installment = parcela, Planned/Actual = previsto/realizado, SharedFlow = fluxo compartilhado
 
 ## Como trabalhar

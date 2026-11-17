@@ -1,5 +1,5 @@
 import type { FilterDef } from '@mikro-orm/core';
-import { CurrentUserContext } from '../common/context/current-user.context';
+import { AppContext } from '../common/context/app-context';
 
 /** true se a entidade tem a propriedade (ex.: só OwnedEntity tem ownerId). */
 function hasProperty(em: unknown, entityName: unknown, property: string): boolean {
@@ -34,8 +34,8 @@ export const globalFilters: Record<string, FilterDef> = {
     args: false,
     cond: (_args, _type, em, _options, entityName) => {
       if (!hasProperty(em, entityName, 'ownerId')) return {};
-      if (CurrentUserContext.isSystem()) return {};
-      const userId = CurrentUserContext.userId();
+      if (AppContext.isSystem()) return {};
+      const userId = AppContext.userId();
       if (!userId) {
         throw new Error(
           `Consulta a ${String(entityName)} sem usuário na requisição (filtro owner). Use runAsSystem para jobs.`,

@@ -15,3 +15,4 @@ Registros curtos de decisão (contexto, decisão, consequências). Uma decisão 
 | [0009](0009-shadcn-vue.md)                      | shadcn-vue + Tailwind no lugar do PrimeVue                      |
 | [0010](0010-estrutura-de-pastas-e-turborepo.md) | Estrutura de pastas por camada e Turborepo                      |
 | [0011](0011-persistencia-mikroorm-7.md)         | Persistência: MikroORM 7, entidades base, filtros e soft delete |
+| [0012](0012-auditoria.md)                       | Auditoria                                                       |

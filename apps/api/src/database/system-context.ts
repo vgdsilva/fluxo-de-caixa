@@ -1,5 +1,5 @@
 import type { EntityManager } from '@mikro-orm/postgresql';
-import { CurrentUserContext } from '../common/context/current-user.context';
+import { AppContext } from '../common/context/app-context';
 
 /**
  * Único jeito permitido de trabalhar sem o filtro de dono: jobs de sistema, seeds e manutenção.
@@ -11,5 +11,5 @@ export function runAsSystem<T>(
   em: EntityManager,
   fn: (em: EntityManager) => Promise<T>,
 ): Promise<T> {
-  return CurrentUserContext.runAsSystemUnsafe(() => fn(em.fork()));
+  return AppContext.runAsSystemUnsafe(() => fn(em.fork()));
 }

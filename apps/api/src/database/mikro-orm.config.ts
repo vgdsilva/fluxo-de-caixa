@@ -4,6 +4,7 @@ import { Migrator } from '@mikro-orm/migrations';
 import { defineConfig, type Options } from '@mikro-orm/postgresql';
 import { SeedManager } from '@mikro-orm/seeder';
 import { type Env, validateEnv } from '../config/env';
+import { AuditSubscriber } from '../modules/audit/audit.subscriber';
 import { entities } from './entities';
 import { globalFilters } from './filters';
 import { BaseEntitySubscriber } from './subscribers/base-entity.subscriber';
@@ -21,7 +22,8 @@ export function createOrmConfig(env: Env): Options {
     password: env.DB_PASSWORD,
     entities,
     filters: globalFilters,
-    subscribers: [new BaseEntitySubscriber()],
+    // A ordem importa: o de auditoria precisa ver o dono preenchido e o soft delete já convertido.
+    subscribers: [new BaseEntitySubscriber(), new AuditSubscriber()],
     extensions: [Migrator, SeedManager],
     debug: env.DB_DEBUG,
     // Não buscar entidades por pasta: a lista explícita em entities.ts é a fonte.
