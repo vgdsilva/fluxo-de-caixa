@@ -11,7 +11,10 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Checagens (as mesmas da CI): `pnpm format:check && pnpm lint && pnpm typecheck && pnpm build`
 - Formatar: `pnpm format`
 - Configuração da API: copie `apps/api/.env.example` para `apps/api/.env`
-- Nova migration (a partir da fatia 2): `pnpm --filter @fluxo/api mikro-orm migration:create`
+- Banco de dev (uma vez): `pnpm --filter @fluxo/api db:setup` (pede a senha do `postgres`; cria `fluxo_app` e `fluxo_dev`)
+- Nova migration: `pnpm --filter @fluxo/api db:migration:create` (as migrations rodam sozinhas no start da API)
+- Dados de exemplo: `pnpm --filter @fluxo/api db:seed` (usuários `ana` e `bruno`)
+- Testar como um usuário (só em dev, até a fatia 4): cabeçalho `X-Dev-User: ana`
 - Testes automatizados: ainda não existem (entram depois da fase 0). Os runners já estão configurados (Jest na api, Vitest no web).
 
 ## Regras que não se quebram
@@ -35,7 +38,8 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 
 ## Onde fica cada coisa
 
-- API: `modules/<feature>/` (module, controller, service, entity), `common/` (guards, interceptors, middleware, validators, utils, constants), `config/`, `database/` (fatia 2). Auth = `modules/auth/`.
+- API: `modules/<feature>/` (module, controller, service, entity, dto), `common/` (context, guards, interceptors, middleware, validators, utils, constants), `config/`, `database/` (config do MikroORM, entidades base, filtros, subscriber, migrations, seeders). Auth = `modules/auth/`.
+- Entidade nova: estende `OwnedEntity` (dado de usuário) ou `BaseEntity`, entra em `database/entities.ts`, gera migration. Tipo de coluna sempre explícito (`@Property({ type: ... })`); campos com default usam `Opt<T>`. Serviço nunca filtra por `ownerId`/`deletedAt` à mão. DTO = `createZodDto(schema de @fluxo/contracts)`.
 - Web (nomes fixos, pedidos pelo dono): `public/{images,icons,favicon.ico}`; em `src/`: `assets/`, `components/{common,ui,layout}`, `pages/`, `hooks/` (composables do Vue, `useX.ts`), `context/` (provide/inject), `services/` (`api.ts` + `*.service.ts`), `utils/`, `routes/` (Vue Router), `store/` (Pinia). Não renomeie para `composables/`, `router/` ou `stores/`.
 - Componente não chama `fetch`: usa um hook, que usa `services/`.
 
