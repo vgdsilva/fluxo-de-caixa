@@ -1,4 +1,3 @@
-import { Note } from '../modules/notes/note.entity';
 import { User } from '../modules/users/user.entity';
 import { BaseEntity } from './entities/base.entity';
 import { OwnedEntity } from './entities/owned.entity';
@@ -8,4 +7,4 @@ import { OwnedEntity } from './entities/owned.entity';
  * Entidade nova: crie em modules/<feature>/<nome>.entity.ts e adicione aqui.
  * As bases abstratas precisam estar na lista para o MikroORM herdar as colunas delas.
  */
-export const entities = [BaseEntity, OwnedEntity, User, Note];
+export const entities = [BaseEntity, OwnedEntity, User];

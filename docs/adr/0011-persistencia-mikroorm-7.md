@@ -14,6 +14,6 @@
 - **Sistema:** `runAsSystem(em, fn)` (`database/system-context.ts`) é o único lugar sem filtro de dono (seeds, jobs).
 - **Migrations** em `src/database/migrations`, geradas pelo CLI e aplicadas no start da API (`DB_MIGRATE_ON_START`). Registro explícito de entidades em `database/entities.ts`, como os `DbSet` de um `DbContext`.
 - **Banco de desenvolvimento:** `pnpm --filter @fluxo/api db:setup` cria o usuário `fluxo_app` (não superusuário) e o banco `fluxo_dev`.
-- **Entidade de exemplo** `Note` (`modules/notes`) com CRUD em `/api/notes`, só para provar as garantias. Serve de molde para a fase 1 e pode ser removida depois.
+- **Entidade de exemplo** `Note` (`modules/notes`, CRUD em `/api/notes`) foi usada só para verificar a fatia 2 e removida em seguida. O código completo (entidade, serviço, controller, DTOs com `createZodDto`, contrato) fica no commit `46664bf` como molde para as entidades da fase 1 (ex.: `git show 46664bf:apps/api/src/modules/notes/notes.service.ts`).
 
 **Consequências.** Uma entidade nova é: classe em `modules/<feature>/<nome>.entity.ts` estendendo `OwnedEntity`, uma linha em `database/entities.ts` e `pnpm --filter @fluxo/api db:migration:create`. Serviços nunca filtram por dono nem por `deletedAt` à mão. Quando os testes entrarem, o Jest pode ter dificuldade com pacotes só ESM; nesse caso, usar Vitest também na API.

@@ -9,7 +9,6 @@ common/            peças transversais, sem regra de negócio
 modules/           uma pasta por funcionalidade (módulo Nest)
   health/            health.module.ts, health.controller.ts, health.service.ts
   users/             User (entidade) e UsersService
-  notes/             exemplo de OwnedEntity com CRUD (fatia 2)
   auth/              (fatia 4) sessão, login, convites, 2FA
   audit/             (fatia 3) auditoria
 database/          MikroORM: mikro-orm.config.ts, entities.ts (registro), entities/ (BaseEntity, OwnedEntity),

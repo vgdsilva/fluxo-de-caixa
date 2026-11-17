@@ -9,7 +9,7 @@ Só o que não é óbvio, com o equivalente em ASP.NET Core quando existe. Cresc
 | `@Injectable()` num service + `providers: [...]` no módulo | `services.AddSingleton<HealthService>()`                                                                                           | `modules/health/health.service.ts`                 |
 | `main.ts` com `NestFactory.create(AppModule)`              | `Program.cs` com `WebApplication.CreateBuilder`                                                                                    | `apps/api/src/main.ts`                             |
 | Módulo (`@Module`)                                         | Um `IServiceCollection` por feature (`AddIdentity()`), mas com fronteira: só o que está em `exports` é visível para outros módulos | `app.module.ts`, `modules/health/health.module.ts` |
-| `providers` de um módulo                                   | Registro no container de DI (`services.AddScoped<...>`)                                                                            | `modules/notes/notes.module.ts`                    |
+| `providers` de um módulo                                   | Registro no container de DI (`services.AddScoped<...>`)                                                                            | `modules/users/users.module.ts`                    |
 | Controller (`@Controller('health')` + `@Get()`)            | Controller com `[Route]`/`[HttpGet]`; o retorno é serializado como JSON                                                            | `modules/health/health.controller.ts`              |
 | `app.setGlobalPrefix('api')`                               | `app.MapGroup("/api")` / `PathBase`                                                                                                | `main.ts`                                          |
 | `ConfigModule` + `validate`                                | `IOptions<T>` com `ValidateOnStart()`                                                                                              | `config/env.ts`                                    |
@@ -21,7 +21,7 @@ Só o que não é óbvio, com o equivalente em ASP.NET Core quando existe. Cresc
 | Filtros globais do MikroORM                                | `HasQueryFilter`                                                                                                                   | `database/filters.ts`                              |
 | `EventSubscriber.onFlush`                                  | `SaveChangesInterceptor`                                                                                                           | `database/subscribers/`                            |
 | `AsyncLocalStorage`                                        | `AsyncLocal<T>`                                                                                                                    | `common/context/current-user.context.ts`           |
-| `createZodDto(schema)` + `ZodValidationPipe`               | DTO com DataAnnotations + validação automática                                                                                     | `modules/notes/notes.dto.ts`                       |
+| `createZodDto(schema)` + `ZodValidationPipe`               | DTO com DataAnnotations + validação automática                                                                                     | molde no commit `46664bf`                          |
 
 Detalhes que pegam:
 

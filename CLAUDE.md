@@ -39,7 +39,7 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 ## Onde fica cada coisa
 
 - API: `modules/<feature>/` (module, controller, service, entity, dto), `common/` (context, guards, interceptors, middleware, validators, utils, constants), `config/`, `database/` (config do MikroORM, entidades base, filtros, subscriber, migrations, seeders). Auth = `modules/auth/`.
-- Entidade nova: estende `OwnedEntity` (dado de usuário) ou `BaseEntity`, entra em `database/entities.ts`, gera migration. Tipo de coluna sempre explícito (`@Property({ type: ... })`); campos com default usam `Opt<T>`. Serviço nunca filtra por `ownerId`/`deletedAt` à mão. DTO = `createZodDto(schema de @fluxo/contracts)`.
+- Entidade nova: estende `OwnedEntity` (dado de usuário) ou `BaseEntity`, entra em `database/entities.ts`, gera migration. Tipo de coluna sempre explícito (`@Property({ type: ... })`); campos com default usam `Opt<T>`. Serviço nunca filtra por `ownerId`/`deletedAt` à mão. DTO = `createZodDto(schema de @fluxo/contracts)`. Molde completo de módulo com entidade dona + CRUD: commit `46664bf` (módulo notes, removido depois).
 - Web (nomes fixos, pedidos pelo dono): `public/{images,icons,favicon.ico}`; em `src/`: `assets/`, `components/{common,ui,layout}`, `pages/`, `hooks/` (composables do Vue, `useX.ts`), `context/` (provide/inject), `services/` (`api.ts` + `*.service.ts`), `utils/`, `routes/` (Vue Router), `store/` (Pinia). Não renomeie para `composables/`, `router/` ou `stores/`.
 - Componente não chama `fetch`: usa um hook, que usa `services/`.
 

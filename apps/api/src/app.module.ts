@@ -6,7 +6,6 @@ import { DevUserMiddleware } from './common/middleware/dev-user.middleware';
 import { validateEnv } from './config/env';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
-import { NotesModule } from './modules/notes/notes.module';
 import { UsersModule } from './modules/users/users.module';
 
 // O módulo raiz só compõe os módulos de feature. Cada feature é um módulo Nest próprio
@@ -22,7 +21,6 @@ import { UsersModule } from './modules/users/users.module';
     DatabaseModule,
     HealthModule,
     UsersModule,
-    NotesModule,
   ],
   providers: [
     // Valida todo @Body()/@Query() tipado com um DTO de createZodDto (schemas de @fluxo/contracts).

@@ -2,7 +2,7 @@
 
 Critério da spec: com dois usuários de seed, um não enxerga o registro do outro; remover só preenche `deletedAt`.
 
-O roteiro usou a entidade de exemplo `Note` (`/api/notes`), que foi removida logo depois da verificação, por decisão do dono do projeto. O código dela continua no histórico do git, no commit "Fatia 2 (parte 2)", e serve de molde para as entidades da fase 1. Para repetir este roteiro, faça checkout desse commit.
+O roteiro usou a entidade de exemplo `Note` (`/api/notes`), que foi removida logo depois da verificação, por decisão do dono do projeto. O código dela continua no histórico do git, no commit `46664bf` ("Fatia 2 (parte 2)"), e serve de molde para as entidades da fase 1. Para repetir este roteiro, faça checkout desse commit.
 
 ## Preparação
 
