@@ -2,7 +2,7 @@
 import { CircleAlert, CircleCheck, RefreshCw } from '@lucide/vue';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { useApiHealth } from '@/composables/useApiHealth';
+import { useApiHealth } from '@/hooks/useApiHealth';
 
 const { health, error, loading, refresh } = useApiHealth();
 </script>

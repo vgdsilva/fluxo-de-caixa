@@ -1,6 +1,6 @@
 # Fluxo de Caixa
 
-App pessoal de fluxo de caixa e projeção financeira. Monorepo pnpm: `apps/web` (Vue 3 + Vite + Pinia + Vue Router + Tailwind + shadcn-vue, PWA), `apps/api` (NestJS 11 + MikroORM + PostgreSQL), `packages/contracts` (schemas zod compartilhados). Plano: `docs/plano-base.md`. Fase atual: `docs/fase-0.md` (fatias 1 a 8). Decisões: `docs/adr/`. Estrutura de pastas: ADR 0010 e os READMEs em `apps/api/src` e `apps/web/src`.
+App pessoal de fluxo de caixa e projeção financeira. Monorepo pnpm: `apps/web` (Vue 3 + Vite + Pinia + Vue Router + Tailwind + shadcn-vue, PWA), `apps/api` (NestJS 11 + MikroORM + PostgreSQL), `packages/contracts` (schemas zod compartilhados). Plano: `docs/plano-base.md`. Fase atual: `docs/fase-0.md` (fatias 1 a 8). Decisões: `docs/adr/`. Estrutura de pastas: ADR 0010, `apps/api/src/README.md` e `apps/web/README.md`.
 
 O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio do Nest ou do Vue, explique em uma frase (comentário ou PR) e, se for recorrente, acrescente em `docs/guia-nest-vue-para-dotnet.md`.
 
@@ -36,8 +36,8 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 ## Onde fica cada coisa
 
 - API: `modules/<feature>/` (module, controller, service, entity), `common/` (guards, interceptors, middleware, validators, utils, constants), `config/`, `database/` (fatia 2). Auth = `modules/auth/`.
-- Web: `pages/` (telas), `components/{ui,common,layout}`, `composables/` (lógica reativa, o "hook" do Vue), `services/api/` (HTTP), `stores/` (Pinia), `router/`, `utils/`, `assets/`.
-- Componente não chama `fetch`: usa um composable, que usa `services/api`.
+- Web (nomes fixos, pedidos pelo dono): `public/{images,icons,favicon.ico}`; em `src/`: `assets/`, `components/{common,ui,layout}`, `pages/`, `hooks/` (composables do Vue, `useX.ts`), `context/` (provide/inject), `services/` (`api.ts` + `*.service.ts`), `utils/`, `routes/` (Vue Router), `store/` (Pinia). Não renomeie para `composables/`, `router/` ou `stores/`.
+- Componente não chama `fetch`: usa um hook, que usa `services/`.
 
 ## Glossário (código = interface)
 

@@ -28,9 +28,10 @@ Detalhes que pegam:
 
 - **`<script setup>`**: o código do componente roda uma vez por instância; tudo que é declarado ali fica disponível no template. É o equivalente ao code-behind de um componente Blazor.
 - **`ref()`**: valor reativo. No script se lê/escreve com `.value`; no template o Vue desembrulha sozinho. Mudou o `.value`, a tela atualiza.
-- **Composables** (`src/composables/useX.ts`): o equivalente Vue dos hooks do React. Uma função que cria estado reativo (`ref`) e lógica, chamada dentro do `<script setup>`. É onde mora a chamada à API, para o componente só desenhar.
-- **Pinia**: store global (estado compartilhado entre telas), como um serviço singleton com estado no Blazor. Instalado, ainda sem stores.
-- **Vue Router**: rotas apontam para componentes de página carregados sob demanda (`() => import(...)`), o que gera um arquivo JS por página.
+- **Hooks** (`src/hooks/useX.ts`): no Vue o nome oficial é _composable_, o equivalente dos hooks do React; aqui a pasta se chama `hooks/` por convenção do projeto. Uma função que cria estado reativo (`ref`) e lógica, chamada dentro do `<script setup>`. É onde mora a chamada à API, para o componente só desenhar.
+- **Pinia** (`src/store/`): store global (estado compartilhado entre telas), como um serviço singleton com estado no Blazor. Instalado, ainda sem stores.
+- **Context** (`src/context/`): `provide`/`inject` do Vue, o mesmo papel do Context do React (dado para uma subárvore de componentes, sem ser global).
+- **Vue Router** (`src/routes/`): rotas apontam para componentes de página carregados sob demanda (`() => import(...)`), o que gera um arquivo JS por página.
 - **shadcn-vue**: não é uma dependência que você atualiza. O CLI copia o código de cada componente para `src/components/ui/` e ele passa a ser seu (como gerar um componente a partir de um template). Uso: `import { Button } from '@/components/ui/button'`. Ver ADR 0009.
 - **Tailwind**: estilo por classes utilitárias direto no template (`class="mb-2 text-2xl font-semibold"`), em vez de um arquivo CSS por componente. As cores do tema são variáveis CSS em `src/assets/styles/main.css` (`bg-background`, `text-muted-foreground`).
 - **Alias `@/`** aponta para `apps/web/src`.

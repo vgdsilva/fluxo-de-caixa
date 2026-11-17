@@ -18,7 +18,7 @@
     "utils": "@/utils",
     "ui": "@/components/ui",
     "lib": "@/utils",
-    "composables": "@/composables"
+    "composables": "@/hooks"
   },
   "menuColor": "default",
   "menuAccent": "subtle",

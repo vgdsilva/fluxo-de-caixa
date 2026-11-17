@@ -1,6 +1,6 @@
 import type { HealthResponse } from '@fluxo/contracts';
 import { onMounted, ref } from 'vue';
-import { fetchHealth } from '@/services/api/health.service';
+import { fetchHealth } from '@/services/health.service';
 
 /**
  * Composable (o "hook" do Vue): estado reativo + lógica reaproveitável entre componentes.
