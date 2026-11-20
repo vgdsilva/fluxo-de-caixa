@@ -14,6 +14,12 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 - Nova migration (a partir da fatia 2): `pnpm --filter @fluxo/api mikro-orm migration:create`
 - Testes automatizados: ainda não existem (entram depois da fase 0). Os runners já estão configurados (Jest na api, Vitest no web).
 
+## Back-end .NET (ADR 0010)
+
+- Solução em `apps/backend/WebAPI.sln` (.NET 10, EF Core + Npgsql). Build: `dotnet build`; testes: `dotnet test` (os de banco exigem `WEBAPI_TEST_POSTGRES`).
+- Camadas: Common ← Data ← Framework ← Core ← WebAPI/Worker. Versões de pacote só em `Directory.Packages.props`.
+- `TreatWarningsAsErrors` está ligado: warning quebra o build.
+
 ## Regras que não se quebram
 
 - Todo dado tem dono (`ownerId`); nunca desligue os filtros `owner`/`notDeleted` fora do `SystemContext`.

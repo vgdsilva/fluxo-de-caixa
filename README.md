@@ -10,7 +10,8 @@ Controle financeiro pessoal e do casal, com foco em responder "quanto vai sobrar
 ## Estrutura
 
 ```text
-apps/api            NestJS 11 (API em /api)
+apps/api            NestJS 11 (API em /api), sendo substituída pelo back em .NET (ADR 0010)
+apps/backend        C# / .NET 10: solução WebAPI.sln (ASP.NET Core + EF Core + PostgreSQL)
 apps/web            Vue 3 + Vite + Pinia + Tailwind + shadcn-vue (SPA/PWA)
 packages/contracts  schemas zod compartilhados (@fluxo/contracts)
 docs/               plano, spec da fase 0, ADRs, roteiros de verificação
@@ -29,3 +30,13 @@ pnpm dev
 Abra http://localhost:5173. A API fica em http://localhost:3000/api e o Vite repassa `/api` para ela.
 
 Checagens (as mesmas da CI): `pnpm format:check && pnpm lint && pnpm typecheck && pnpm build`.
+
+### Back-end .NET
+
+Requisitos: .NET SDK 10 e PostgreSQL (ou `docker compose up -d` em `apps/backend`). Detalhes em [apps/backend/README.md](apps/backend/README.md).
+
+```bash
+cd apps/backend
+dotnet build
+dotnet run --project WebAPI
+```

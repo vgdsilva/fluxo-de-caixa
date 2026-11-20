@@ -1,6 +1,6 @@
 name: CI
 
-# Fase 0: só build, lint e typecheck (testes automatizados entram depois da fase 0).
+# Fase 0: build, lint e typecheck do front; build e testes do back-end .NET (apps/backend).
 on:
   push:
   pull_request:
@@ -27,3 +27,34 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
+
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      WEBAPI_TEST_POSTGRES: Host=localhost;Username=postgres;Password=postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: apps/backend/global.json
+
+      - run: dotnet restore WebAPI.sln
+      - run: dotnet build WebAPI.sln --no-restore -c Release
+      - run: dotnet test WebAPI.sln --no-build -c Release

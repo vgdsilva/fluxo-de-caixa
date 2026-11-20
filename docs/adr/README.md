@@ -13,3 +13,4 @@ Registros curtos de decisão (contexto, decisão, consequências). Uma decisão 
 | [0007](0007-contratos-zod.md)        | Contratos zod compartilhados                           |
 | [0008](0008-versoes-fixadas.md)      | Versões fixadas: Nest 11, TypeScript 5.9, PrimeVue 4.5 |
 | [0009](0009-shadcn-vue.md)           | shadcn-vue + Tailwind no lugar do PrimeVue             |
+| [0010](0010-backend-dotnet.md)       | Back-end em C# / .NET 10 com EF Core (substitui Nest)  |
