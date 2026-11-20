@@ -6,7 +6,7 @@ namespace WebAPI.Test.Data;
 
 /// <summary>
 /// Cria um banco PostgreSQL temporário por classe de teste e apaga no final.
-/// Requer a variável WEBAPI_TEST_POSTGRES (ex.: "Host=localhost;Username=postgres;Password=postgres").
+/// Requer a variável WEBAPI_TEST_POSTGRES com uma connection string do servidor (sem Database); ver README.
 /// </summary>
 public sealed class PostgresFixture : IAsyncLifetime
 {
