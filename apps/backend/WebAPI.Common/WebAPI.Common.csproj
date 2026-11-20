@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Sem dependência de outros projetos da solução: apenas contratos, tipos e utilitários. -->
+</Project>

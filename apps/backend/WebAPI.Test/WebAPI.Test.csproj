@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebAPI.Common\WebAPI.Common.csproj" />
+    <ProjectReference Include="..\WebAPI.Data\WebAPI.Data.csproj" />
+    <ProjectReference Include="..\WebAPI.Framework\WebAPI.Framework.csproj" />
+    <ProjectReference Include="..\WebAPI.Core\WebAPI.Core.csproj" />
+    <ProjectReference Include="..\WebAPI\WebAPI.csproj" />
+    <ProjectReference Include="..\WebAPI.Worker\WebAPI.Worker.csproj" />
+  </ItemGroup>
+
+</Project>

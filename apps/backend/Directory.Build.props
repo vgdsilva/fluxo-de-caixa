@@ -1,0 +1,18 @@
+<Project>
+  <!--
+    Configurações compartilhadas por todos os projetos da solução.
+    Para aplicar um prefixo de empresa/produto no namespace no futuro, troque o RootNamespace abaixo,
+    por exemplo: <RootNamespace>MinhaEmpresa.$(MSBuildProjectName)</RootNamespace>
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+</Project>
