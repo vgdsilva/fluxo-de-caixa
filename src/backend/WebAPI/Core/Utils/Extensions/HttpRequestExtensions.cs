@@ -50,47 +50,24 @@ public static class HttpRequestExtensions
             errorId = Guid.NewGuid().ToString(); //.Substring(0, 8).ToUpper();
         }
 
-        ErrorResponse responseBody = isDevelopment
-            ? new ErrorResponse
-            {
-                Code = (int)statusCode,
-                Message = errorMessage,
-                Detail = detail,
-                StackTrace = stackTrace,
-                ReferenceCode = errorId.ToString(),
-                DevelopmentNote = "Este detalhe só aparece em ambiente de Development."
-            }
-            : new ErrorResponse
-            {
-                Code = (int)statusCode,
-                Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde.",
-                ReferenceCode = errorId.ToString()
-            };
-
-        string responseJson = JsonSerializer.Serialize(responseBody, JsonDefaults.DefaultConfigs());
+        var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        {
+            Status = (int)statusCode,
+            Title = isDevelopment ? errorMessage : "Ocorreu um erro interno. Por favor, tente novamente mais tarde.",
+            Detail = isDevelopment && !string.IsNullOrEmpty(detail) ? detail : null,
+        };
+        problem.Extensions["referenceCode"] = errorId.ToString();
+        if (isDevelopment && !string.IsNullOrEmpty(stackTrace))
+            problem.Extensions["stackTrace"] = stackTrace;
 
         httpContext.Response.StatusCode = (int)statusCode;
-        httpContext.Response.ContentType = "application/json";
 
-        await httpContext.Response.WriteAsync(responseJson);
+        IProblemDetailsService? problemDetails = httpContext.RequestServices.GetService<IProblemDetailsService>();
+        if (problemDetails is not null &&
+            await problemDetails.TryWriteAsync(new ProblemDetailsContext { HttpContext = httpContext, ProblemDetails = problem }))
+            return;
+
+        httpContext.Response.ContentType = "application/problem+json";
+        await httpContext.Response.WriteAsync(JsonSerializer.Serialize(problem, JsonDefaults.DefaultConfigs()));
     }
-}
-
-/// <summary>
-/// Corpo das respostas de erro. É uma classe com setters (e não um tipo anônimo) porque
-/// <see cref="JsonDefaults"/> usa IgnoreReadOnlyProperties, que descartaria as propriedades de um tipo anônimo.
-/// </summary>
-public sealed class ErrorResponse
-{
-    public int Code { get; set; }
-
-    public string? Message { get; set; }
-
-    public string? Detail { get; set; }
-
-    public string? StackTrace { get; set; }
-
-    public string? ReferenceCode { get; set; }
-
-    public string? DevelopmentNote { get; set; }
 }

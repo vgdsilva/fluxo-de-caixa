@@ -12,7 +12,7 @@ using WebAPI.Data;
 namespace WebAPI.Data.Migrations
 {
     [DbContext(typeof(WebAPIContext))]
-    [Migration("20261123145038_Initial")]
+    [Migration("20261123150453_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -301,6 +301,12 @@ namespace WebAPI.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("locked_until");
 
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("login");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -331,6 +337,10 @@ namespace WebAPI.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("system_is_deleted = false");
+
+                    b.HasIndex("Login")
                         .IsUnique()
                         .HasFilter("system_is_deleted = false");
 

@@ -26,7 +26,7 @@ O dono é desenvolvedor .NET e novo em Vue: ao introduzir algo não óbvio do Vu
 - Toda configuração do EF fica no `WebAPIContext` (`OnConfiguring`/`OnModelCreating`), não no `Program`. Connection string montada a partir da seção `Database` (Host, Port, Name, Username, Password).
 - Segredos por user-secrets (`dotnet user-secrets set ... --project src/backend/WebAPI`): `Database:Password`, `Jwt:SigningKey` (32+ caracteres) e `Admin:Password` (cria o primeiro admin).
 - Auditoria por atributo: `[Audit(AuditOperations.Create | Update | Delete)]` na entidade e `[AuditIgnore]` na propriedade.
-- Login: sessão no banco (refresh token opaco no cookie `HttpOnly` `fc_refresh`, girado a cada uso) + JWT de 15 min no `Authorization: Bearer`.
+- Login: sessão no banco + JWT de 15 min no `Authorization: Bearer`; o refresh token vai no corpo (`/api/auth/refresh` e `/logout` recebem `{ refreshToken }`) e é girado a cada uso. Erros em ProblemDetails. Contrato em `src/backend/README.md`.
 - Nova migration: `dotnet ef migrations add <Nome> --project src/backend/WebAPI --output-dir Data/Migrations`.
 - Documentação da API em `/docs` (Scalar) quando `Docs:Enabled` (padrão em Development).
 

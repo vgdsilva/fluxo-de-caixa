@@ -8,7 +8,7 @@ using WebAPI.Data.Types;
 
 namespace WebAPI.Core.Services;
 
-/// <summary>Resultado de login/refresh: JWT de acesso + token da sessão (vai para o cookie).</summary>
+/// <summary>Resultado de login/refresh: JWT de acesso + refresh token da sessão.</summary>
 public sealed record AuthResult(
     string AccessToken,
     DateTime AccessTokenExpiresAt,
@@ -17,7 +17,7 @@ public sealed record AuthResult(
     User User);
 
 /// <summary>
-/// Login por e-mail e senha com bloqueio após erros seguidos. Cada login cria uma sessão no banco;
+/// Login por nome de acesso (ou e-mail) e senha com bloqueio após erros seguidos. Cada login cria uma sessão no banco;
 /// o JWT de acesso dura minutos e é renovado em <see cref="RefreshAsync"/> enquanto a sessão for válida.
 /// </summary>
 public class AuthService(WebAPIContext db,
@@ -27,25 +27,25 @@ public class AuthService(WebAPIContext db,
                          IOptions<AuthSessionOptions> options,
                          TimeProvider timeProvider)
 {
-    public static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
+    public static string Normalize(string value) => value.Trim().ToLowerInvariant();
 
-    public async Task<AuthResult?> LoginAsync(string email,
+    public async Task<AuthResult?> LoginAsync(string login,
                                               string password,
                                               string? ipAddress,
                                               string? userAgent,
                                               CancellationToken cancellationToken = default)
     {
-        string normalized = NormalizeEmail(email);
+        string normalized = Normalize(login);
         DateTime now = timeProvider.GetUtcNow().UtcDateTime;
 
         User? user = await db.Set<User>()
             .AsTracking()
-            .FirstOrDefaultAsync(u => u.Email == normalized, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Login == normalized || u.Email == normalized, cancellationToken);
 
         if (user is null)
         {
-            // gasta o mesmo tempo de um hash para não revelar quais e-mails existem
-            passwordHasher.HashPassword(new User { Name = "", Email = "" }, password);
+            // gasta o mesmo tempo de um hash para não revelar quais logins existem
+            passwordHasher.HashPassword(new User { Name = "", Login = "", Email = "" }, password);
             return null;
         }
 

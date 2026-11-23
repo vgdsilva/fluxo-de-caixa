@@ -3,83 +3,66 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Controllers.Contracts;
 using WebAPI.Core.Services;
-using WebAPI.Core.Utils.Security;
 
 namespace WebAPI.Controllers;
 
 /// <summary>
-/// Login com sessão no banco + JWT de vida curta.
-/// O token da sessão fica num cookie HttpOnly restrito a /api/auth; o JWT vai no corpo da resposta.
+/// Login com sessão no banco + JWT de vida curta. O login devolve o JWT e o refresh token da sessão;
+/// o refresh troca o refresh token por um novo (rotação) e emite outro JWT.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [AllowAnonymous]
-public class AuthController(AuthService authService, SessionManager sessionManager) : ControllerBase
+public class AuthController(AuthService authService) : ControllerBase
 {
-    /// <summary>Login por e-mail e senha.</summary>
+    /// <summary>Login por nome de acesso (ou e-mail) e senha.</summary>
     [HttpPost("login")]
     [EnableRateLimiting("AuthRateLimiter")]
     [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login(LoginRequest request, CancellationToken cancellationToken)
     {
         AuthResult? result = await authService.LoginAsync(
-            request.Email,
+            request.Login,
             request.Password,
             HttpContext.Connection.RemoteIpAddress?.ToString(),
             Request.Headers.UserAgent.ToString(),
             cancellationToken);
 
         if (result is null)
-            return Problem(statusCode: StatusCodes.Status401Unauthorized, title: "E-mail ou senha inválidos.");
+            return Problem(statusCode: StatusCodes.Status401Unauthorized, title: "Login ou senha inválidos.");
 
-        return Ok(Respond(result));
+        return Ok(ToResponse(result));
     }
 
-    /// <summary>Renova o JWT usando a sessão do cookie (e troca o token da sessão).</summary>
+    /// <summary>Troca o refresh token por um novo e emite outro JWT.</summary>
     [HttpPost("refresh")]
     [EnableRateLimiting("AuthRateLimiter")]
     [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Refresh(RefreshRequest request, CancellationToken cancellationToken)
     {
-        AuthResult? result = null;
-
-        if (Request.Cookies.TryGetValue(sessionManager.CookieName, out string? token) && !string.IsNullOrEmpty(token))
-            result = await authService.RefreshAsync(token, cancellationToken);
+        AuthResult? result = await authService.RefreshAsync(request.RefreshToken, cancellationToken);
 
         if (result is null)
-        {
-            DeleteCookie();
             return Problem(statusCode: StatusCodes.Status401Unauthorized, title: "Sessão expirada. Faça login novamente.");
-        }
 
-        return Ok(Respond(result));
+        return Ok(ToResponse(result));
     }
 
-    /// <summary>Encerra a sessão atual e apaga o cookie.</summary>
+    /// <summary>Encerra a sessão do refresh token. Responde 204 mesmo se a sessão já não existir.</summary>
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    public async Task<IActionResult> Logout(RefreshRequest request, CancellationToken cancellationToken)
     {
-        if (Request.Cookies.TryGetValue(sessionManager.CookieName, out string? token) && !string.IsNullOrEmpty(token))
-            await authService.LogoutAsync(token, cancellationToken);
-
-        DeleteCookie();
+        await authService.LogoutAsync(request.RefreshToken, cancellationToken);
         return NoContent();
     }
 
-    private AuthResponse Respond(AuthResult result)
-    {
-        Response.Cookies.Append(sessionManager.CookieName, result.RefreshToken,
-            sessionManager.CreateCookieOptions(result.RefreshTokenExpiresAt));
-
-        return new AuthResponse(
-            result.AccessToken,
-            result.AccessTokenExpiresAt,
-            new UserResponse(result.User.Id, result.User.Name, result.User.Email, result.User.Role.ToString()));
-    }
-
-    private void DeleteCookie() =>
-        Response.Cookies.Delete(sessionManager.CookieName, sessionManager.CreateCookieOptions(DateTime.UtcNow));
+    private static AuthResponse ToResponse(AuthResult result) => new(
+        result.AccessToken,
+        result.AccessTokenExpiresAt,
+        result.RefreshToken,
+        result.RefreshTokenExpiresAt,
+        new UserResponse(result.User.Id, result.User.Name, result.User.Login, result.User.Email, result.User.Role.ToString()));
 }

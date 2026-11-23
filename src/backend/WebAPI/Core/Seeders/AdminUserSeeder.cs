@@ -28,7 +28,8 @@ public class AdminUserSeeder(IOptions<AdminUserOptions> options, IPasswordHasher
         User user = new()
         {
             Name = string.IsNullOrWhiteSpace(admin.Name) ? "Administrador" : admin.Name,
-            Email = AuthService.NormalizeEmail(admin.Email),
+            Login = AuthService.Normalize(admin.Login),
+            Email = AuthService.Normalize(admin.Email),
             Role = UserRole.Admin,
         };
         user.PasswordHash = passwordHasher.HashPassword(user, admin.Password);
@@ -36,6 +37,6 @@ public class AdminUserSeeder(IOptions<AdminUserOptions> options, IPasswordHasher
         context.Add(user);
         await context.SaveChangesAsync(cancellationToken);
 
-        Log.Information("[AdminUserSeeder] Usuário administrador {Email} criado.", user.Email);
+        Log.Information("[AdminUserSeeder] Usuário administrador {Login} criado.", user.Login);
     }
 }

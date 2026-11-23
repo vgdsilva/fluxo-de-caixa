@@ -6,7 +6,7 @@ using WebAPI.Data.Attributes;
 namespace WebAPI.Data.Types;
 
 /// <summary>
-/// Sessão de login. O cookie guarda o token em claro; aqui fica só o hash SHA-256 dele.
+/// Sessão de login. O cliente guarda o refresh token em claro; aqui fica só o hash SHA-256 dele.
 /// </summary>
 [Audit(AuditOperations.Create | AuditOperations.Update)]
 [Table("session")]

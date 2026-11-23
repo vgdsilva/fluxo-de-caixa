@@ -47,6 +47,9 @@ public static class ServiceConfiguration
                 options.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
             });
 
+        // Erros saem como ProblemDetails (RFC 9457): { type, title, status, detail, traceId }.
+        services.AddProblemDetails();
+
         Log.Information("Configurando documentação da API (OpenAPI + Scalar)...");
         services.AddOpenApi();
 
@@ -58,6 +61,17 @@ public static class ServiceConfiguration
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.OnRejected = (context, _) =>
+                new ValueTask(context.HttpContext.RequestServices.GetRequiredService<IProblemDetailsService>()
+                    .WriteAsync(new ProblemDetailsContext
+                    {
+                        HttpContext = context.HttpContext,
+                        ProblemDetails = new Microsoft.AspNetCore.Mvc.ProblemDetails
+                        {
+                            Status = StatusCodes.Status429TooManyRequests,
+                            Title = "Muitas tentativas. Aguarde um minuto e tente de novo.",
+                        },
+                    }).AsTask());
             options.AddPolicy("AuthRateLimiter", httpContext =>
             {
                 IPAddress clientIp = httpContext.Connection.RemoteIpAddress ?? IPAddress.Loopback;

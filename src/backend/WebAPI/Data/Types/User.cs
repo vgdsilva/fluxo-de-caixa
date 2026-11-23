@@ -7,6 +7,7 @@ namespace WebAPI.Data.Types;
 
 [Audit]
 [Table("user")]
+[Index(nameof(Login), IsUnique = true)]
 [Index(nameof(Email), IsUnique = true)]
 public class User : Entity
 {
@@ -15,7 +16,13 @@ public class User : Entity
     [StringLength(120)]
     public required string Name { get; set; }
 
-    /// <summary>Sempre gravado em minúsculas (ver AuthService.NormalizeEmail).</summary>
+    /// <summary>Nome de acesso usado no login. Sempre gravado em minúsculas (ver AuthService.Normalize).</summary>
+    [Required]
+    [Column("login")]
+    [StringLength(60)]
+    public required string Login { get; set; }
+
+    /// <summary>Sempre gravado em minúsculas (ver AuthService.Normalize).</summary>
     [Column("email")]
     [StringLength(254)]
     public required string Email { get; set; }

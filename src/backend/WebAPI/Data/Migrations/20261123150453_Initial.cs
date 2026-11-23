@@ -70,6 +70,7 @@ namespace WebAPI.Data.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    login = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
                     email = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: false),
                     role = table.Column<int>(type: "integer", nullable: false),
                     password_hash = table.Column<string>(type: "text", nullable: false),
@@ -175,6 +176,14 @@ namespace WebAPI.Data.Migrations
                 schema: "public",
                 table: "user",
                 column: "email",
+                unique: true,
+                filter: "system_is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_login",
+                schema: "public",
+                table: "user",
+                column: "login",
                 unique: true,
                 filter: "system_is_deleted = false");
         }

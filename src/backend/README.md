@@ -29,18 +29,22 @@ dotnet user-secrets set Admin:Password "<senha do primeiro admin>"
 dotnet run
 ```
 
-A API aplica as migrations ao subir e cria o admin (`Admin:Email`, padrão `admin@local.test` em Development) se ainda não houver usuário. A documentação fica em <http://localhost:5039/docs>.
+A API aplica as migrations ao subir e cria o admin (login `admin`, e-mail `admin@local.test` em Development) se ainda não houver usuário. A documentação fica em <http://localhost:5039/docs>.
 
 ## Autenticação
 
-| Endpoint                 | Entrada                         | Saída                                                                  |
-| ------------------------ | ------------------------------- | ---------------------------------------------------------------------- |
-| `POST /api/auth/login`   | `{ "email", "password" }`       | `{ accessToken, expiresAt, user }` + cookie `fc_refresh`; 401 se errar |
-| `POST /api/auth/refresh` | cookie `fc_refresh`             | mesmo formato, cookie novo; 401 se a sessão expirou                    |
-| `POST /api/auth/logout`  | cookie `fc_refresh`             | 204, sessão revogada e cookie apagado                                  |
-| `GET /api/me`            | `Authorization: Bearer <token>` | `{ id, name, email, role }`                                            |
+Erros sempre em ProblemDetails (`{ type, title, status, traceId }`; validação traz `errors`). JSON em camelCase.
 
-O JWT vale 15 minutos (`Jwt:AccessTokenMinutes`); a sessão expira após 7 dias sem uso ou 30 dias no total (seção `Session`).
+| Endpoint                 | Corpo                           | Resposta                                                |
+| ------------------------ | ------------------------------- | ------------------------------------------------------- |
+| `POST /api/auth/login`   | `{ "login", "password" }`       | `AuthResponse`; 401 se errar (o e-mail também serve de login) |
+| `POST /api/auth/refresh` | `{ "refreshToken" }`            | `AuthResponse` com refresh token novo; o antigo deixa de valer; 401 se a sessão expirou |
+| `POST /api/auth/logout`  | `{ "refreshToken" }`            | 204, sessão revogada                                    |
+| `GET /api/me`            | `Authorization: Bearer <token>` | `{ id, name, login, email, role }`                      |
+
+`AuthResponse` = `{ accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt, user: { id, name, login, email, role } }`.
+
+O JWT vale 15 minutos (`Jwt:AccessTokenMinutes`); a sessão expira após 7 dias sem uso ou 30 dias no total (seção `Session`). O banco guarda só o hash SHA-256 do refresh token, na tabela `session`.
 
 ## Comandos
 

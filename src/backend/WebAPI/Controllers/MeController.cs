@@ -13,6 +13,6 @@ public class MeController(UserInfo userInfo) : ControllerBase
     /// <summary>Usuário do JWT atual.</summary>
     [HttpGet]
     [ProducesResponseType<UserResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Get() => Ok(new UserResponse(userInfo.UserId, userInfo.Name, userInfo.Email, userInfo.Role));
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    public IActionResult Get() => Ok(new UserResponse(userInfo.UserId, userInfo.Name, userInfo.Login, userInfo.Email, userInfo.Role));
 }

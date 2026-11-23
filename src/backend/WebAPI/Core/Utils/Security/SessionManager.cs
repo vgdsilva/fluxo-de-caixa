@@ -9,7 +9,7 @@ using WebAPI.Data.Types;
 namespace WebAPI.Core.Utils.Security;
 
 /// <summary>
-/// Sessões de login gravadas no banco. O cliente recebe um token aleatório (refresh token) em cookie HttpOnly;
+/// Sessões de login gravadas no banco. O cliente recebe um token aleatório (refresh token);
 /// o banco guarda só o hash SHA-256. Cada renovação troca o token (rotação), e revogar é marcar
 /// <see cref="Session.RevokedAt"/>.
 /// </summary>
@@ -17,9 +17,7 @@ public class SessionManager(WebAPIContext db, IOptions<AuthSessionOptions> optio
 {
     private AuthSessionOptions Options => options.Value;
 
-    public string CookieName => Options.CookieName;
-
-    /// <summary>Cria a sessão e devolve o token em claro (só existe neste momento, no cookie).</summary>
+    /// <summary>Cria a sessão e devolve o token em claro (só existe neste momento; o banco guarda o hash).</summary>
     public async Task<(string Token, Session Session)> CreateAsync(User user,
                                                                    string? ipAddress,
                                                                    string? userAgent,
@@ -93,18 +91,6 @@ public class SessionManager(WebAPIContext db, IOptions<AuthSessionOptions> optio
         session.RevokedAt = Now();
         await db.SaveChangesAsync(cancellationToken);
     }
-
-    public CookieOptions CreateCookieOptions(DateTime expiresAt) => new()
-    {
-        HttpOnly = true,
-        // Secure sempre: navegadores aceitam cookie Secure em http://localhost, e em produção o acesso é HTTPS.
-        Secure = true,
-        SameSite = SameSiteMode.Strict,
-        // O cookie só viaja para login/refresh/logout, nunca para o resto da API.
-        Path = "/api/auth",
-        Expires = expiresAt,
-        IsEssential = true,
-    };
 
     public static string Hash(string token) =>
         Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
