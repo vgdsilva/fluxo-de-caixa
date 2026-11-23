@@ -1,21 +1,42 @@
-# Dependências e builds
+# Ambiente (segredos nunca vão para o git; .env.example sim)
+.env
+.env.*
+!.env.example
+
+# .NET (src/backend, tests)
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+TestResults/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.nupkg
+*.snupkg
+*.coverage
+coverage*.json
+coverage*.xml
+
+# Node (src/frontend)
 node_modules/
 dist/
 dist-ssr/
 coverage/
 *.tsbuildinfo
 .vite/
-
-# Ambiente (segredos nunca vão para o git; .env.example sim)
-.env
-.env.*
-!.env.example
-deploy/.env
+*.local
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Logs
 *.log
-npm-debug.log*
-pnpm-debug.log*
 
 # Editores e sistema
 .vs/
@@ -23,7 +44,5 @@ pnpm-debug.log*
 .openidea/
 .vscode/*
 !.vscode/extensions.json
-*.suo
-*.user
 .DS_Store
 Thumbs.db

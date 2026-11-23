@@ -1,37 +1,35 @@
 # Fluxo de Caixa
 
-App pessoal de fluxo de caixa e projeção financeira. Monorepo pnpm: `apps/web` (Vue 3 + Vite + Pinia + Vue Router + Tailwind + shadcn-vue, PWA), `apps/api` (NestJS 11 + MikroORM + PostgreSQL), `packages/contracts` (schemas zod compartilhados). Plano: `docs/plano-base.md`. Fase atual: `docs/fase-0.md` (fatias 1 a 8). Decisões: `docs/adr/`.
+App pessoal de fluxo de caixa e projeção financeira. Monorepo (ADR 0011): `src/backend` (C# / .NET, ASP.NET Core + EF Core + PostgreSQL), `src/frontend` (Vue 3, PWA), `tests/` (testes .NET e, no futuro, e2e), `docs/`, `deploy/` (docker-compose e scripts). Plano: `docs/plano-base.md`. Decisões: `docs/adr/`.
 
-O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio do Nest ou do Vue, explique em uma frase (comentário ou PR) e, se for recorrente, acrescente em `docs/guia-nest-vue-para-dotnet.md`.
+O dono é desenvolvedor .NET e novo em Vue: ao introduzir algo não óbvio do Vue, explique em uma frase (comentário ou PR) e, se for recorrente, acrescente em `docs/guia-nest-vue-para-dotnet.md`.
 
 ## Comandos
 
-- Instalar: `pnpm install`
-- Rodar local: `pnpm dev` (contracts em watch, api em :3000, web em :5173 com proxy de `/api`)
-- Checagens (as mesmas da CI): `pnpm format:check && pnpm lint && pnpm typecheck && pnpm build`
-- Formatar: `pnpm format`
-- Configuração da API: copie `apps/api/.env.example` para `apps/api/.env`
-- Nova migration (a partir da fatia 2): `pnpm --filter @fluxo/api mikro-orm migration:create`
-- Testes automatizados: ainda não existem (entram depois da fase 0). Os runners já estão configurados (Jest na api, Vitest no web).
+- Banco local: `cp deploy/.env.example deploy/.env` e `docker compose -f deploy/docker-compose.yml up -d`
+- Back-end: `dotnet build src/backend/WebAPI.slnx`, `dotnet test src/backend/WebAPI.slnx`, `dotnet run --project src/backend/WebAPI`
+- Testes com banco leem a connection string de `WEBAPI_TEST_POSTGRES`.
+- Front-end: `cd src/frontend && npm install && npm run dev` (detalhes em `src/frontend/README.md`)
+- A CI (`.github/workflows/ci.yml`) roda um job por stack; cada um só age quando a pasta tem código.
+
+## Onde cada coisa mora
+
+- Código de produção do back em `src/backend`; projeto de teste .NET em `tests/<Projeto>.Test`, incluído na solução.
+- Front autocontido em `src/frontend` (package.json e lockfile próprios); teste de unidade do front fica junto do componente.
+- Docker, `.env.example` e scripts de operação em `deploy/`.
+- `.editorconfig`, `.gitignore` e `.gitattributes` só na raiz; não crie cópias dentro das pastas.
+- `archive/stack-nest` é a stack Nest/pnpm antiga, só para consulta: não edite, não importe e não use como base.
 
 ## Regras que não se quebram
 
-- Todo dado tem dono (`ownerId`); nunca desligue os filtros `owner`/`notDeleted` fora do `SystemContext`.
-- Nunca apague de verdade: remoção vira soft delete pelo subscriber.
-- Controllers e o chat chamam serviços de aplicação; nunca o `EntityManager` direto.
-- Um módulo Nest só usa o que outro módulo exporta em `exports`.
-- Formato de request/response só em `packages/contracts`; o front nunca escreve tipo de API à mão.
-- `web` só fala com `api` por HTTP (o lint bloqueia import de `apps/api`).
+- Todo dado tem dono (`OwnerId`); os filtros globais de dono e de soft delete só são desligados em contexto de sistema, de forma explícita.
+- Nunca apague de verdade: remoção vira soft delete.
+- Controllers e o chat chamam serviços de aplicação; nunca o `DbContext` direto.
+- O front só fala com o back por HTTP; nunca importa código de `src/backend`.
 - Dinheiro em centavos inteiros no código, `numeric(14,2)` no banco; datas de negócio `'YYYY-MM-DD'`; instantes `timestamptz` UTC; exibição em `America/Sao_Paulo`.
 - Nomes de código em inglês; textos da interface em português.
+- Nada de segredo no git: `.env` e user-secrets ficam locais.
 - Toda fatia termina com um roteiro curto de verificação manual em `docs/verificacao/`.
-
-## Versões fixadas e UI (ver ADRs 0008 e 0009)
-
-- NestJS 11 (não 12): `nestjs-zod` e `@nestjs/config` 4 ainda exigem Nest 11.
-- TypeScript 5.9: `typescript-eslint` e `ts-jest` ainda não aceitam TS 6/7.
-- Componentes: shadcn-vue + Tailwind 4 (ADR 0009), não PrimeVue. Componente novo: `pnpm dlx shadcn-vue@latest add <nome>` em `apps/web`; o código vai para `src/components/ui/`.
-- Node: CI usa a versão do `.nvmrc` (24); localmente funciona com Node >= 22.12.
 
 ## Glossário (código = interface)
 
@@ -42,7 +40,7 @@ O dono é desenvolvedor .NET e novo em Nest/Vue: ao introduzir algo não óbvio 
 
 ## Como trabalhar
 
-- Branches: `feature/<descricao-curta>` para funcionalidade nova (ex.: `feature/fatia-2-persistencia`) e `hotfix/<descricao-curta>` para correção. Nada de commit direto no `master`.
-- Uma fatia vertical por sessão (contrato + API + tela); PR pequeno, com o roteiro de verificação manual.
+- Branches: `feature/<descricao-curta>` para funcionalidade nova e `hotfix/<descricao-curta>` para correção. Nada de commit direto no `main` ou no `develop`.
+- Uma fatia vertical por sessão (API + tela); PR pequeno, com o roteiro de verificação manual.
 - Decisão de arquitetura nova = ADR em `docs/adr` antes do código.
 - Ao fechar uma fatia, atualize este arquivo se surgiu convenção nova.
