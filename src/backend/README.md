@@ -8,6 +8,7 @@ src/backend/
   global.json                 versão do SDK
   Directory.Build.props       propriedades comuns (nullable, TreatWarningsAsErrors)
   Directory.Packages.props    versões de pacote centralizadas
+  nuget.config                só o nuget.org (ignora fontes da máquina, evita o NU1507)
   WebAPI/
     Configuration/            startup, opções (Database, Jwt, Session, Admin)
     Controllers/              endpoints HTTP e contratos de request/response
