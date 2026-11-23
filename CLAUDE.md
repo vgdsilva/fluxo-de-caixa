@@ -1,6 +1,6 @@
 # Fluxo de Caixa
 
-App pessoal de fluxo de caixa e projeção financeira. Monorepo (ADR 0011): `src/backend` (C# / .NET, ASP.NET Core + EF Core + PostgreSQL), `src/frontend` (Vue 3, PWA), `tests/` (testes .NET e, no futuro, e2e), `docs/`, `deploy/` (docker-compose e scripts). Plano: `docs/plano-base.md`. Decisões: `docs/adr/`.
+App pessoal de fluxo de caixa e projeção financeira. Monorepo (ADR 0011): `src/backend` (C# / .NET, ASP.NET Core + EF Core + PostgreSQL), `src/frontend` (Vue 3, PWA), `tests/` (testes .NET (ainda vazio) e, no futuro, e2e), `docs/`, `deploy/` (docker-compose e scripts). Plano: `docs/plano-base.md`. Decisões: `docs/adr/`.
 
 O dono é desenvolvedor .NET e novo em Vue: ao introduzir algo não óbvio do Vue, explique em uma frase (comentário ou PR) e, se for recorrente, acrescente em `docs/guia-nest-vue-para-dotnet.md`.
 
@@ -19,6 +19,16 @@ O dono é desenvolvedor .NET e novo em Vue: ao introduzir algo não óbvio do Vu
 - Docker, `.env.example` e scripts de operação em `deploy/`.
 - `.editorconfig`, `.gitignore` e `.gitattributes` só na raiz; não crie cópias dentro das pastas.
 - `archive/stack-nest` é a stack Nest/pnpm antiga, só para consulta: não edite, não importe e não use como base.
+
+## Back-end .NET (ADR 0010)
+
+- Um projeto só: `src/backend/WebAPI` (.NET 10, EF Core + Npgsql), pastas `Configuration`, `Controllers`, `Core`, `Data`. Versões de pacote só em `Directory.Packages.props`; `TreatWarningsAsErrors` ligado (warning quebra o build).
+- Toda configuração do EF fica no `WebAPIContext` (`OnConfiguring`/`OnModelCreating`), não no `Program`. Connection string montada a partir da seção `Database` (Host, Port, Name, Username, Password).
+- Segredos por user-secrets (`dotnet user-secrets set ... --project src/backend/WebAPI`): `Database:Password`, `Jwt:SigningKey` (32+ caracteres) e `Admin:Password` (cria o primeiro admin).
+- Auditoria por atributo: `[Audit(AuditOperations.Create | Update | Delete)]` na entidade e `[AuditIgnore]` na propriedade.
+- Login: sessão no banco + JWT de 15 min no `Authorization: Bearer`; o refresh token vai no corpo (`/api/auth/refresh` e `/logout` recebem `{ refreshToken }`) e é girado a cada uso. Erros em ProblemDetails. Contrato em `src/backend/README.md`.
+- Nova migration: `dotnet ef migrations add <Nome> --project src/backend/WebAPI --output-dir Data/Migrations`.
+- Documentação da API em `/docs` (Scalar) quando `Docs:Enabled` (padrão em Development).
 
 ## Regras que não se quebram
 
