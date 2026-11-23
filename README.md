@@ -17,6 +17,7 @@ src/
 tests/         testes do back-end (xUnit) e, no futuro, ponta a ponta
 docs/          plano, ADRs, guias e roteiros de verificação
 deploy/        docker-compose, .env de exemplo e scripts de operação
+archive/       código da stack antiga (Nest/pnpm), só para consulta
 .github/       CI
 ```
 

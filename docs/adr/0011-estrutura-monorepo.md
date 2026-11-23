@@ -11,9 +11,10 @@
 - `tests/` projetos de teste .NET (ex.: `tests/WebAPI.Test`, incluído na solução de `src/backend`) e, no futuro, `tests/e2e`. Testes de unidade do front ficam junto do código em `src/frontend`.
 - `docs/` plano, ADRs, guias e roteiros de verificação.
 - `deploy/` docker-compose, `.env.example` e scripts de operação.
+- `archive/` código de stacks abandonadas, só para consulta, fora da CI.
 - Na raiz só o que vale para tudo: `README.md`, `CLAUDE.md`, `.gitignore`, `.gitattributes`, `.editorconfig` e `.github/`.
 
-A stack antiga (Nest, MikroORM, contratos zod, `apps/web`) sai do `develop`. Ela continua no histórico do git e na branch `feature/new-rebrand`.
+A stack antiga (Nest, MikroORM, contratos zod, `apps/web` e a configuração do workspace pnpm) vai para `archive/stack-nest`. As fatias 2 a 6 dela continuam na branch `feature/new-rebrand`.
 
 **Consequências.**
 

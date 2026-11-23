@@ -1,0 +1,7 @@
+packages:
+  - apps/*
+  - packages/*
+allowBuilds:
+  esbuild: true
+  # Tem bin�rios pr�-compilados; o script de build � s� fallback.
+  '@parcel/watcher': false

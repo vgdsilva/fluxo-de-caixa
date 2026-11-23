@@ -18,6 +18,7 @@ O dono é desenvolvedor .NET e novo em Vue: ao introduzir algo não óbvio do Vu
 - Front autocontido em `src/frontend` (package.json e lockfile próprios); teste de unidade do front fica junto do componente.
 - Docker, `.env.example` e scripts de operação em `deploy/`.
 - `.editorconfig`, `.gitignore` e `.gitattributes` só na raiz; não crie cópias dentro das pastas.
+- `archive/stack-nest` é a stack Nest/pnpm antiga, só para consulta: não edite, não importe e não use como base.
 
 ## Regras que não se quebram
 
