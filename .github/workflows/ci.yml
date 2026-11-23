@@ -1,6 +1,7 @@
 name: CI
 
-# Fase 0: build, lint e typecheck do front; build e testes do back-end .NET (apps/backend).
+# Um job por stack. Cada job só roda build e testes quando a pasta já tem código,
+# para que a estrutura possa entrar antes do back-end e do front-end.
 on:
   push:
   pull_request:
@@ -10,51 +11,75 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm build
-
   backend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/backend
     services:
       postgres:
         image: postgres:17
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ${{ github.run_id }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres"
+          --health-cmd "pg_isready -U ci"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
     env:
-      WEBAPI_TEST_POSTGRES: Host=localhost;Username=postgres;Password=postgres
+      WEBAPI_TEST_POSTGRES: Host=localhost;Username=ci;Password=${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: apps/backend/global.json
+      - name: Localiza a solução
+        id: sln
+        run: |
+          sln=$(ls src/backend/*.slnx src/backend/*.sln 2>/dev/null | head -n 1 || true)
+          echo "path=$sln" >> "$GITHUB_OUTPUT"
+          if [ -z "$sln" ]; then echo "Sem solução em src/backend; nada a fazer."; fi
 
-      - run: dotnet restore WebAPI.sln
-      - run: dotnet build WebAPI.sln --no-restore -c Release
-      - run: dotnet test WebAPI.sln --no-build -c Release
+      - if: steps.sln.outputs.path != ''
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: src/backend/global.json
+
+      - if: steps.sln.outputs.path != ''
+        run: dotnet restore ${{ steps.sln.outputs.path }}
+      - if: steps.sln.outputs.path != ''
+        run: dotnet build ${{ steps.sln.outputs.path }} --no-restore -c Release
+      - if: steps.sln.outputs.path != ''
+        run: dotnet test ${{ steps.sln.outputs.path }} --no-build -c Release
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detecta o gerenciador de pacotes
+        id: pm
+        run: |
+          if [ ! -f package.json ]; then echo "Sem package.json em src/frontend; nada a fazer."; echo "name=" >> "$GITHUB_OUTPUT"
+          elif [ -f pnpm-lock.yaml ]; then echo "name=pnpm" >> "$GITHUB_OUTPUT"
+          else echo "name=npm" >> "$GITHUB_OUTPUT"; fi
+
+      - if: steps.pm.outputs.name != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - if: steps.pm.outputs.name == 'pnpm'
+        run: corepack enable && pnpm install --frozen-lockfile
+      - if: steps.pm.outputs.name == 'npm'
+        run: npm ci
+
+      - if: steps.pm.outputs.name != ''
+        run: ${{ steps.pm.outputs.name }} run --if-present lint
+      - if: steps.pm.outputs.name != ''
+        run: ${{ steps.pm.outputs.name }} run --if-present type-check
+      - if: steps.pm.outputs.name != ''
+        run: ${{ steps.pm.outputs.name }} run build
+      - if: steps.pm.outputs.name != ''
+        run: ${{ steps.pm.outputs.name }} run --if-present test

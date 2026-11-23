@@ -10,3 +10,24 @@ trim_trailing_whitespace = true
 
 [*.md]
 trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
+
+# .NET (src/backend, tests)
+[*.{cs,csx}]
+indent_size = 4
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = true:suggestion
+dotnet_sort_system_directives_first = true
+
+[*.{csproj,props,targets,slnx,xml}]
+indent_size = 2
+
+# Scripts do Windows
+[*.{ps1,psm1}]
+indent_size = 4
+end_of_line = crlf
+
+[*.{cmd,bat,sln}]
+end_of_line = crlf

@@ -3,40 +3,50 @@
 Controle financeiro pessoal e do casal, com foco em responder "quanto vai sobrar nos próximos meses, e cabe esta compra?". Hospedado em casa, acessado pelo celular.
 
 - Plano do sistema: [docs/plano-base.md](docs/plano-base.md)
-- Fase atual (fundação): [docs/fase-0.md](docs/fase-0.md)
 - Decisões de arquitetura: [docs/adr/](docs/adr/README.md)
-- Nest e Vue para quem vem do .NET: [docs/guia-nest-vue-para-dotnet.md](docs/guia-nest-vue-para-dotnet.md)
+- Índice da documentação: [docs/README.md](docs/README.md)
 
 ## Estrutura
 
+Monorepo com back-end em .NET e front-end em Vue (ADR [0011](docs/adr/0011-estrutura-monorepo.md)).
+
 ```text
-apps/api            NestJS 11 (API em /api), sendo substituída pelo back em .NET (ADR 0010)
-apps/backend        C# / .NET 10: solução WebAPI.sln (ASP.NET Core + EF Core + PostgreSQL)
-apps/web            Vue 3 + Vite + Pinia + Tailwind + shadcn-vue (SPA/PWA)
-packages/contracts  schemas zod compartilhados (@fluxo/contracts)
-docs/               plano, spec da fase 0, ADRs, roteiros de verificação
+src/
+  backend/     API em C# / .NET (ASP.NET Core + EF Core + PostgreSQL), solução WebAPI.slnx
+  frontend/    SPA em Vue 3 (PWA), projeto Node autocontido
+tests/         testes do back-end (xUnit) e, no futuro, ponta a ponta
+docs/          plano, ADRs, guias e roteiros de verificação
+deploy/        docker-compose, .env de exemplo e scripts de operação
+archive/       código da stack antiga (Nest/pnpm), só para consulta
+.github/       CI
 ```
+
+Cada pasta tem um README curto com o que mora nela e os comandos:
+[src/backend](src/backend/README.md), [src/frontend](src/frontend/README.md), [tests](tests/README.md), [deploy](deploy/README.md).
+
+Regras de convivência:
+
+- `src/frontend` e `src/backend` só se falam por HTTP; nenhum importa código do outro.
+- Teste .NET mora em `tests/`, não dentro de `src/backend`.
+- Nada de segredo no git: `.env` e user-secrets ficam locais; só os `.env.example` são versionados.
+- `.editorconfig`, `.gitignore` e `.gitattributes` valem para o repositório inteiro e ficam só na raiz.
 
 ## Rodando local
 
-Requisitos: Node >= 22.12 (24 recomendado, ver `.nvmrc`), pnpm 11, PostgreSQL local (a partir da fatia 2).
+Requisitos: .NET SDK (versão no `src/backend/global.json`), Node 22.12 ou mais novo e Docker (para o PostgreSQL).
 
 ```bash
-pnpm install
-cp apps/api/.env.example apps/api/.env
-pnpm dev
+# banco
+cp deploy/.env.example deploy/.env
+docker compose -f deploy/docker-compose.yml up -d
+
+# API
+dotnet run --project src/backend/WebAPI
+
+# front (outro terminal)
+cd src/frontend
+npm install
+npm run dev
 ```
 
-Abra http://localhost:5173. A API fica em http://localhost:3000/api e o Vite repassa `/api` para ela.
-
-Checagens (as mesmas da CI): `pnpm format:check && pnpm lint && pnpm typecheck && pnpm build`.
-
-### Back-end .NET
-
-Requisitos: .NET SDK 10 e PostgreSQL (ou `docker compose up -d` em `apps/backend`). Detalhes em [apps/backend/README.md](apps/backend/README.md).
-
-```bash
-cd apps/backend
-dotnet build
-dotnet run --project WebAPI
-```
+Testes do back-end: `dotnet test src/backend/WebAPI.slnx`.
