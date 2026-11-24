@@ -22,19 +22,21 @@ O dono é desenvolvedor .NET e novo em Vue: ao introduzir algo não óbvio do Vu
 
 ## Back-end .NET (ADR 0010)
 
-- Um projeto só: `src/backend/WebAPI` (.NET 10, EF Core + Npgsql), pastas `Configuration`, `Controllers`, `Core`, `Data`. Versões de pacote só em `Directory.Packages.props`; `TreatWarningsAsErrors` ligado (warning quebra o build).
+- Um projeto só: `src/backend/WebAPI` (.NET 10, EF Core + Npgsql), organizado por módulos (ADR 0012): `Config/`, `Common/`, `Database/` e `Modules/<Nome>/` com o `<Nome>Module.cs` (Add/Map), entidades, services e `Endpoints/`.
+- Minimal API, um arquivo por endpoint: classe estática com `Request`, `Response`, `Validation` (FluentValidation) e `Endpoint : IEndpoint`, listada no `Map<Nome>Module`. Tudo em `/api` exige login; público usa `.AllowAnonymous()`.
+- Versões de pacote só em `Directory.Packages.props`; `TreatWarningsAsErrors` ligado (warning quebra o build).
 - Toda configuração do EF fica no `WebAPIContext` (`OnConfiguring`/`OnModelCreating`), não no `Program`. Connection string montada a partir da seção `Database` (Host, Port, Name, Username, Password).
 - Segredos por user-secrets (`dotnet user-secrets set ... --project src/backend/WebAPI`): `Database:Password`, `Jwt:SigningKey` (32+ caracteres) e `Admin:Password` (cria o primeiro admin).
 - Auditoria por atributo: `[Audit(AuditOperations.Create | Update | Delete)]` na entidade e `[AuditIgnore]` na propriedade.
 - Login: sessão no banco + JWT de 15 min no `Authorization: Bearer`; o refresh token vai no corpo (`/api/auth/refresh` e `/logout` recebem `{ refreshToken }`) e é girado a cada uso. Erros em ProblemDetails. Contrato em `src/backend/README.md`.
-- Nova migration: `dotnet ef migrations add <Nome> --project src/backend/WebAPI --output-dir Data/Migrations`.
+- Nova migration: `dotnet ef migrations add <Nome> --project src/backend/WebAPI --output-dir Database/Migrations --namespace WebAPI.Database.Migrations`.
 - Documentação da API em `/docs` (Scalar) quando `Docs:Enabled` (padrão em Development).
 
 ## Regras que não se quebram
 
 - Todo dado tem dono (`OwnerId`); os filtros globais de dono e de soft delete só são desligados em contexto de sistema, de forma explícita.
 - Nunca apague de verdade: remoção vira soft delete.
-- Controllers e o chat chamam serviços de aplicação; nunca o `DbContext` direto.
+- Endpoints e o chat chamam serviços de aplicação; nunca o `DbContext` direto.
 - O front só fala com o back por HTTP; nunca importa código de `src/backend`.
 - Dinheiro em centavos inteiros no código, `numeric(14,2)` no banco; datas de negócio `'YYYY-MM-DD'`; instantes `timestamptz` UTC; exibição em `America/Sao_Paulo`.
 - Nomes de código em inglês; textos da interface em português.

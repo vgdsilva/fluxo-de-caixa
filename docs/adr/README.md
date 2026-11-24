@@ -15,3 +15,4 @@ Registros curtos de decisão (contexto, decisão, consequências). Uma decisão 
 | [0009](0009-shadcn-vue.md)            | shadcn-vue + Tailwind no lugar do PrimeVue             | histórico (front antigo)         |
 | [0010](0010-backend-dotnet.md)        | Back-end em C# / .NET 10, EF Core, JWT + sessão no banco | vale                           |
 | [0011](0011-estrutura-monorepo.md)    | Estrutura do monorepo: src, tests, docs, deploy        | vale                             |
+| [0012](0012-modulos-e-minimal-api.md)  | Back-end por módulos, um arquivo por endpoint (minimal API) | proposta                     |

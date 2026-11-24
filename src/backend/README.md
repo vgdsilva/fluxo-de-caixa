@@ -8,12 +8,47 @@ src/backend/
   global.json                 versão do SDK
   Directory.Build.props       propriedades comuns (nullable, TreatWarningsAsErrors)
   Directory.Packages.props    versões de pacote centralizadas
+  nuget.config                só o nuget.org (ignora fontes da máquina, evita o NU1507)
   WebAPI/
-    Configuration/            startup, opções (Database, Jwt, Session, Admin)
-    Controllers/              endpoints HTTP e contratos de request/response
-    Core/                     serviços, segurança (JWT, sessões), seeders, utilitários
-    Data/                     WebAPIContext, entidades, interceptor de auditoria, migrations
+    Program.cs
+    Config/                   startup (serviços, pipeline, Kestrel, log)
+    Common/                   o que é de todos: Endpoints (IEndpoint, validação), Security,
+                              Middleware, Startup, Utils, Extensions, ServiceLocator
+    Database/                 WebAPIContext, Entity base, [Audit], AuditInterceptor, Migrations
+    Modules/
+      Auth/                   AuthModule, AuthService, SessionManager, TokenManager, Session
+        Endpoints/            Login.cs, Refresh.cs, Logout.cs
+      Users/                  UsersModule, User, AdminUserSeeder, UserResponse
+        Endpoints/            GetMe.cs
+      Health/  Audit/  Invites/  Settings/
 ```
+
+## Endpoint novo
+
+Um arquivo por endpoint em `Modules/<Módulo>/Endpoints/`, listado no `Map<Módulo>Module` (ADR 0012):
+
+```csharp
+public static class CreateThing
+{
+    public sealed record Request(string Name);
+    public sealed record Response(Guid Id);
+
+    public sealed class Validation : AbstractValidator<Request>
+    {
+        public Validation() => RuleFor(r => r.Name).NotEmpty().MaximumLength(120);
+    }
+
+    public sealed class Endpoint : IEndpoint
+    {
+        public void Map(IEndpointRouteBuilder group) =>
+            group.MapPost("/", Handle).WithValidation<Request>();
+
+        private static async Task<Created<Response>> Handle(Request request, ThingService service, CancellationToken ct) { ... }
+    }
+}
+```
+
+Tudo em `/api` exige login; use `.AllowAnonymous()` no que for público.
 
 ## Primeira execução
 
@@ -51,5 +86,5 @@ O JWT vale 15 minutos (`Jwt:AccessTokenMinutes`); a sessão expira após 7 dias 
 ```bash
 dotnet build src/backend/WebAPI.slnx
 dotnet run --project src/backend/WebAPI
-dotnet ef migrations add <Nome> --project src/backend/WebAPI --output-dir Data/Migrations
+dotnet ef migrations add <Nome> --project src/backend/WebAPI --output-dir Database/Migrations --namespace WebAPI.Database.Migrations
 ```
