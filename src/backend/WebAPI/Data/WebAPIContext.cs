@@ -1,10 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using WebAPI.Configuration.Options;
-using WebAPI.Core.Utils.Extensions;
-using WebAPI.Data.Converters;
-using WebAPI.Data.Interceptors;
-using WebAPI.Data.Types;
 
 namespace WebAPI.Data;
 

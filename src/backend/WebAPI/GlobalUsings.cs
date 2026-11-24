@@ -1,0 +1,24 @@
+// Namespaces do próprio projeto disponíveis em todos os arquivos (equivale a um using em cada arquivo).
+global using WebAPI.Config;
+global using WebAPI.Config.Options;
+global using WebAPI.Data;
+global using WebAPI.Data.Attributes;
+global using WebAPI.Data.Converters;
+global using WebAPI.Data.Interceptors;
+global using WebAPI.Data.Mapping;
+global using WebAPI.Data.Seeders;
+global using WebAPI.Data.Startup;
+global using WebAPI.Dtos;
+global using WebAPI.Entities;
+global using WebAPI.Enums;
+global using WebAPI.Exceptions;
+global using WebAPI.Middlewares;
+global using WebAPI.Security;
+global using WebAPI.Services;
+global using WebAPI.Services.Impl;
+global using WebAPI.Utils;
+global using WebAPI.Utils.Builders;
+global using WebAPI.Utils.Extensions;
+global using WebAPI.Utils.Mapping;
+global using WebAPI.Utils.Startup;
+global using WebAPI.Utils.Endpoints;

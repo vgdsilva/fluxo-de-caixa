@@ -23,7 +23,7 @@ namespace WebAPI.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("WebAPI.Data.Types.AuditLog", b =>
+            modelBuilder.Entity("WebAPI.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -94,7 +94,7 @@ namespace WebAPI.Data.Migrations
                     b.ToTable("audit_log", "public");
                 });
 
-            modelBuilder.Entity("WebAPI.Data.Types.Invite", b =>
+            modelBuilder.Entity("WebAPI.Entities.Invite", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -157,7 +157,7 @@ namespace WebAPI.Data.Migrations
                     b.ToTable("invite", "public");
                 });
 
-            modelBuilder.Entity("WebAPI.Data.Types.Session", b =>
+            modelBuilder.Entity("WebAPI.Entities.Session", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -222,7 +222,7 @@ namespace WebAPI.Data.Migrations
                     b.ToTable("session", "public");
                 });
 
-            modelBuilder.Entity("WebAPI.Data.Types.Setting", b =>
+            modelBuilder.Entity("WebAPI.Entities.Setting", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -266,7 +266,7 @@ namespace WebAPI.Data.Migrations
                     b.ToTable("setting", "public");
                 });
 
-            modelBuilder.Entity("WebAPI.Data.Types.User", b =>
+            modelBuilder.Entity("WebAPI.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -344,9 +344,9 @@ namespace WebAPI.Data.Migrations
                     b.ToTable("user", "public");
                 });
 
-            modelBuilder.Entity("WebAPI.Data.Types.Session", b =>
+            modelBuilder.Entity("WebAPI.Entities.Session", b =>
                 {
-                    b.HasOne("WebAPI.Data.Types.User", "User")
+                    b.HasOne("WebAPI.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -355,9 +355,9 @@ namespace WebAPI.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebAPI.Data.Types.Setting", b =>
+            modelBuilder.Entity("WebAPI.Entities.Setting", b =>
                 {
-                    b.HasOne("WebAPI.Data.Types.User", "UserEntity")
+                    b.HasOne("WebAPI.Entities.User", "UserEntity")
                         .WithMany()
                         .HasForeignKey("UserId");
 

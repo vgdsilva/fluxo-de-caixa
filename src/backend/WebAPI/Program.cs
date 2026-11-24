@@ -1,6 +1,5 @@
 
 using Serilog;
-using WebAPI.Configuration;
 
 namespace WebAPI;
 

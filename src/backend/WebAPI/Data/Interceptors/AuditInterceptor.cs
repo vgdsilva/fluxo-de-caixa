@@ -4,9 +4,6 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using WebAPI.Core.Utils.Builders;
-using WebAPI.Data.Attributes;
-using WebAPI.Data.Types;
 
 namespace WebAPI.Data.Interceptors;
 

@@ -8,12 +8,48 @@ src/backend/
   global.json                 versão do SDK
   Directory.Build.props       propriedades comuns (nullable, TreatWarningsAsErrors)
   Directory.Packages.props    versões de pacote centralizadas
+  nuget.config                só o nuget.org (ignora fontes da máquina, evita o NU1507)
   WebAPI/
-    Configuration/            startup, opções (Database, Jwt, Session, Admin)
-    Controllers/              endpoints HTTP e contratos de request/response
-    Core/                     serviços, segurança (JWT, sessões), seeders, utilitários
-    Data/                     WebAPIContext, entidades, interceptor de auditoria, migrations
+    Program.cs
+    Config/                   startup (serviços, pipeline, Kestrel, log) e Options/
+    Endpoints/                um arquivo por endpoint: Auth/Login.cs, Auth/Refresh.cs, Me/GetMe.cs...
+    Dtos/                     formatos compartilhados entre endpoints (UserDto)
+    Entities/                 Entity (base), User, Session, Invite, Setting, AuditLog
+    Enums/                    UserRole
+    Exceptions/               AppException e as exceções de negócio (já com status HTTP)
+    Services/                 interfaces (IAuthService); Impl/ com as implementações
+    Security/                 JWT, sessão, auth handler, UserInfo
+    Middlewares/              tratamento de erro, espera do startup
+    Utils/                    extensões, mapeamento, infraestrutura de endpoint, startup
+    Data/                     WebAPIContext, [Audit], AuditInterceptor, Migrations, Seeders
 ```
+
+## Endpoint novo
+
+Um arquivo em `Endpoints/<Área>/` (ADR 0012). Ele é achado sozinho e registrado sob `/api`:
+
+```csharp
+public static class CreateThing
+{
+    public sealed record Request(string Name);
+    public sealed record Response(Guid Id);
+
+    public sealed class Validation : AbstractValidator<Request>
+    {
+        public Validation() => RuleFor(r => r.Name).NotEmpty().MaximumLength(120);
+    }
+
+    public sealed class Endpoint : IEndpoint
+    {
+        public void Map(IEndpointRouteBuilder api) =>
+            api.MapPost("/things", Handle).WithTags("Things").WithValidation<Request>();
+
+        private static async Task<Created<Response>> Handle(Request request, IThingService service, CancellationToken ct) { ... }
+    }
+}
+```
+
+Tudo em `/api` exige login; use `.AllowAnonymous()` no que for público. Erro de negócio: lance uma exceção que herda de `AppException` (ex.: `InvalidCredentialsException`), que vira ProblemDetails com o status dela.
 
 ## Primeira execução
 

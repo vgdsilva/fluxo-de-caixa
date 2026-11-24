@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using WebAPI.Configuration.Options;
 
 namespace WebAPI.Data;
 
