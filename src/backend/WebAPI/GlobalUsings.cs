@@ -14,8 +14,6 @@ global using WebAPI.Enums;
 global using WebAPI.Exceptions;
 global using WebAPI.Middlewares;
 global using WebAPI.Security;
-global using WebAPI.Services;
-global using WebAPI.Services.Impl;
 global using WebAPI.Utils;
 global using WebAPI.Utils.Builders;
 global using WebAPI.Utils.Extensions;

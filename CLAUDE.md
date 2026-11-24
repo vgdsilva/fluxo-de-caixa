@@ -22,7 +22,7 @@ O dono é desenvolvedor .NET e novo em Vue: ao introduzir algo não óbvio do Vu
 
 ## Back-end .NET (ADR 0010)
 
-- Um projeto só: `src/backend/WebAPI` (.NET 10, EF Core + Npgsql), pastas por tipo (ADR 0012): `Config`, `Endpoints`, `Dtos`, `Entities`, `Enums`, `Exceptions`, `Services` (+ `Impl`), `Security`, `Middlewares`, `Utils`, `Data`. Sem repositories: o service usa o `WebAPIContext`.
+- Um projeto só: `src/backend/WebAPI` (.NET 10, EF Core + Npgsql), pastas por tipo (ADR 0012): `Config`, `Endpoints`, `Dtos`, `Entities`, `Enums`, `Exceptions`, `Security`, `Middlewares`, `Utils`, `Data`. Sem repositories nem services (por enquanto): a lógica fica no `Handle` do endpoint, que usa o `WebAPIContext`.
 - Minimal API, um arquivo por endpoint em `Endpoints/<Área>/`: classe estática com `Request`, `Response`, `Validation` (FluentValidation) e `Endpoint : IEndpoint` (achado por reflection). Tudo em `/api` exige login; público usa `.AllowAnonymous()`. Erro de negócio = exceção que herda de `AppException` (já com o status).
 - Versões de pacote só em `Directory.Packages.props`; `TreatWarningsAsErrors` ligado (warning quebra o build).
 - Toda configuração do EF fica no `WebAPIContext` (`OnConfiguring`/`OnModelCreating`), não no `Program`. Connection string montada a partir da seção `Database` (Host, Port, Name, Username, Password).
@@ -36,7 +36,7 @@ O dono é desenvolvedor .NET e novo em Vue: ao introduzir algo não óbvio do Vu
 
 - Todo dado tem dono (`OwnerId`); os filtros globais de dono e de soft delete só são desligados em contexto de sistema, de forma explícita.
 - Nunca apague de verdade: remoção vira soft delete.
-- Endpoints e o chat chamam serviços de aplicação; nunca o `DbContext` direto.
+- Por enquanto a lógica fica no endpoint (ADR 0012); quando a mesma regra servir a mais de um endpoint ou ao chat, ela vai para um service.
 - O front só fala com o back por HTTP; nunca importa código de `src/backend`.
 - Dinheiro em centavos inteiros no código, `numeric(14,2)` no banco; datas de negócio `'YYYY-MM-DD'`; instantes `timestamptz` UTC; exibição em `America/Sao_Paulo`.
 - Nomes de código em inglês; textos da interface em português.

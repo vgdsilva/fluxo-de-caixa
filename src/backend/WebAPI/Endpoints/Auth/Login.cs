@@ -1,4 +1,7 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace WebAPI.Endpoints.Auth;
@@ -19,12 +22,12 @@ public static class Login
         DateTime RefreshTokenExpiresAt,
         UserDto User)
     {
-        public static Response From(AuthResult result) => new(
-            result.AccessToken,
-            result.AccessTokenExpiresAt,
-            result.RefreshToken,
-            result.RefreshTokenExpiresAt,
-            UserDto.From(result.User));
+        /// <summary>Emite o JWT da sessão e monta a resposta (usado também pelo refresh).</summary>
+        public static Response Create(TokenManager tokenManager, User user, Session session, string refreshToken)
+        {
+            (string accessToken, DateTime accessTokenExpiresAt) = tokenManager.CreateJwtToken(user, session);
+            return new Response(accessToken, accessTokenExpiresAt, refreshToken, session.ExpiresAt, UserDto.From(user));
+        }
     }
 
     public sealed class Validation : AbstractValidator<Request>
@@ -47,20 +50,68 @@ public static class Login
                  .RequireRateLimiting("AuthRateLimiter")
                  .AllowAnonymous();
 
+        /// <summary>
+        /// Busca o usuário pelo login ou e-mail, confere a senha (bloqueia depois de erros seguidos),
+        /// cria a sessão no banco e devolve o JWT + refresh token.
+        /// </summary>
         private static async Task<Ok<Response>> Handle(
             Request request,
-            IAuthService authService,
+            WebAPIContext db,
+            SessionManager sessionManager,
+            TokenManager tokenManager,
+            IPasswordHasher<User> passwordHasher,
+            IOptions<AuthSessionOptions> options,
+            TimeProvider timeProvider,
             HttpContext httpContext,
             CancellationToken cancellationToken)
         {
-            AuthResult result = await authService.LoginAsync(
-                request.Login,
-                request.Password,
+            string login = User.Normalize(request.Login);
+            DateTime now = timeProvider.GetUtcNow().UtcDateTime;
+
+            User? user = await db.Set<User>()
+                .AsTracking()
+                .FirstOrDefaultAsync(u => u.Login == login || u.Email == login, cancellationToken);
+
+            if (user is null)
+            {
+                // gasta o mesmo tempo de um hash para não revelar quais logins existem
+                passwordHasher.HashPassword(new User { Name = "", Login = "", Email = "" }, request.Password);
+                throw new InvalidCredentialsException();
+            }
+
+            if (!user.IsEnabled || user.LockedUntil > now)
+                throw new InvalidCredentialsException();
+
+            PasswordVerificationResult result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+
+            if (result == PasswordVerificationResult.Failed)
+            {
+                user.FailedLoginCount++;
+                if (user.FailedLoginCount >= options.Value.MaxFailedLogins)
+                {
+                    user.LockedUntil = now.AddMinutes(options.Value.LockoutMinutes);
+                    user.FailedLoginCount = 0;
+                }
+
+                await db.SaveChangesAsync(cancellationToken);
+                throw new InvalidCredentialsException();
+            }
+
+            if (result == PasswordVerificationResult.SuccessRehashNeeded)
+                user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
+
+            user.FailedLoginCount = 0;
+            user.LockedUntil = null;
+            user.LastLoginAt = now;
+            await db.SaveChangesAsync(cancellationToken);
+
+            (string refreshToken, Session session) = await sessionManager.CreateAsync(
+                user,
                 httpContext.Connection.RemoteIpAddress?.ToString(),
                 httpContext.Request.Headers.UserAgent.ToString(),
                 cancellationToken);
 
-            return TypedResults.Ok(Response.From(result));
+            return TypedResults.Ok(Response.Create(tokenManager, user, session, refreshToken));
         }
     }
 }

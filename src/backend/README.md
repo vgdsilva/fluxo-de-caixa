@@ -17,7 +17,6 @@ src/backend/
     Entities/                 Entity (base), User, Session, Invite, Setting, AuditLog
     Enums/                    UserRole
     Exceptions/               AppException e as exceções de negócio (já com status HTTP)
-    Services/                 interfaces (IAuthService); Impl/ com as implementações
     Security/                 JWT, sessão, auth handler, UserInfo
     Middlewares/              tratamento de erro, espera do startup
     Utils/                    extensões, mapeamento, infraestrutura de endpoint, startup
@@ -44,7 +43,7 @@ public static class CreateThing
         public void Map(IEndpointRouteBuilder api) =>
             api.MapPost("/things", Handle).WithTags("Things").WithValidation<Request>();
 
-        private static async Task<Created<Response>> Handle(Request request, IThingService service, CancellationToken ct) { ... }
+        private static async Task<Created<Response>> Handle(Request request, WebAPIContext db, CancellationToken ct) { ... }
     }
 }
 ```

@@ -23,8 +23,8 @@ public class AdminUserSeeder(IOptions<AdminUserOptions> options, IPasswordHasher
         User user = new()
         {
             Name = string.IsNullOrWhiteSpace(admin.Name) ? "Administrador" : admin.Name,
-            Login = AuthService.Normalize(admin.Login),
-            Email = AuthService.Normalize(admin.Email),
+            Login = User.Normalize(admin.Login),
+            Email = User.Normalize(admin.Email),
             Role = UserRole.Admin,
         };
         user.PasswordHash = passwordHasher.HashPassword(user, admin.Password);

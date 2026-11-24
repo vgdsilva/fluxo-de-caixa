@@ -15,13 +15,16 @@ public class User : Entity
     [StringLength(120)]
     public required string Name { get; set; }
 
-    /// <summary>Nome de acesso usado no login. Sempre gravado em minúsculas (ver AuthService.Normalize).</summary>
+    /// <summary>Nome de acesso usado no login. Sempre gravado em minúsculas (ver User.Normalize).</summary>
+    /// <summary>Login e e-mail são gravados e comparados assim: sem espaços nas pontas e em minúsculas.</summary>
+    public static string Normalize(string value) => value.Trim().ToLowerInvariant();
+
     [Required]
     [Column("login")]
     [StringLength(60)]
     public required string Login { get; set; }
 
-    /// <summary>Sempre gravado em minúsculas (ver AuthService.Normalize).</summary>
+    /// <summary>Sempre gravado em minúsculas (ver User.Normalize).</summary>
     [Column("email")]
     [StringLength(254)]
     public required string Email { get; set; }

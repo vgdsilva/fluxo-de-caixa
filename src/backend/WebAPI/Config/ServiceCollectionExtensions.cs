@@ -27,7 +27,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddProjectServices(this IServiceCollection services)
     {
         services
-            .AddScoped<IAuthService, AuthService>()
             .AddScoped<IDataSeeder, AdminUserSeeder>();
 
         return services;

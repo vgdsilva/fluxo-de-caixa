@@ -28,12 +28,16 @@ public static class Refresh
 
         private static async Task<Ok<Login.Response>> Handle(
             Request request,
-            IAuthService authService,
+            SessionManager sessionManager,
+            TokenManager tokenManager,
             CancellationToken cancellationToken)
         {
-            AuthResult result = await authService.RefreshAsync(request.RefreshToken, cancellationToken);
+            (string Token, Session Session)? rotated = await sessionManager.RotateAsync(request.RefreshToken, cancellationToken);
 
-            return TypedResults.Ok(Login.Response.From(result));
+            if (rotated is not { Session.User: { } user } value)
+                throw new SessionExpiredException();
+
+            return TypedResults.Ok(Login.Response.Create(tokenManager, user, value.Session, value.Token));
         }
     }
 }

@@ -25,10 +25,10 @@ public static class Logout
 
         private static async Task<NoContent> Handle(
             Request request,
-            IAuthService authService,
+            SessionManager sessionManager,
             CancellationToken cancellationToken)
         {
-            await authService.LogoutAsync(request.RefreshToken, cancellationToken);
+            await sessionManager.RevokeAsync(request.RefreshToken, cancellationToken);
             return TypedResults.NoContent();
         }
     }
